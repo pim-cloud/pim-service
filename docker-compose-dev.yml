@@ -4,7 +4,7 @@ networks:
 services:
   pim-web:
     image: jksusu/pim-web:0.01
-    container_name: pim-web
+    container_name: pim-web-dev
     privileged: true
     ports:
       - "80:80"
@@ -35,8 +35,8 @@ services:
     networks:
       - pim
   pim-server:
-    image: jksusu/pim-service:0.01
-    container_name: pim-service
+    build: ./
+    container_name: pim-service-dev
     privileged: true
     ports:
       - 9501:9501
