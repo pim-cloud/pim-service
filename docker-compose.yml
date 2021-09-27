@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     tty: true
     ports:
-      - 3305:3306
+      - 3306:3306
     environment:
       MYSQL_DATABASE: im
       MYSQL_USER: root
@@ -31,12 +31,12 @@ services:
     image: redis:6.0.6
     container_name: redis
     ports:
-      - "6378:6379"
+      - "6379:6379"
     networks:
       - pim
   pim-server:
     image: jksusu/pim-service:0.01
-    container_name: pim-server
+    container_name: pim-service
     privileged: true
     ports:
       - 9501:9501

@@ -101,6 +101,16 @@ class GroupController extends AbstractController
      */
     public function deleteGroupMember()
     {
-
+        $params = $this->request->all();
+        $validator = $this->validationFactory->make($params,
+            [
+                'group_number' => 'required',
+                'uid' => 'required',
+            ]
+        );
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn((new GroupService())->deleteGroupMember((string)$params['group_number'],(string)$params['uid']));
     }
 }

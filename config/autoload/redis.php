@@ -11,9 +11,9 @@ declare(strict_types=1);
  */
 return [
     'default' => [
-        'host' => env('REDIS_HOST', ''),
+        'host' => env('REDIS_HOST', 'redis'),
         'auth' => env('REDIS_AUTH', null),
-        'port' => (int) env('REDIS_PORT', ),
+        'port' => (int) env('REDIS_PORT', 6379),
         'db' => (int) env('REDIS_DB', 0),
         'pool' => [
             'min_connections' => 5,

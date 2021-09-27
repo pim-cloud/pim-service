@@ -201,4 +201,15 @@ class GroupService
 
         return $data;
     }
+
+    /**
+     * 移除群
+     * @param string $groupNumber
+     * @param string $uid
+     * @return false|int|mixed
+     */
+    public function deleteGroupMember(string $groupNumber, string $uid)
+    {
+        return GroupMember::where('group_number', $groupNumber)->where('uid', $uid)->delete();
+    }
 }
