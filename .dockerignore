@@ -9,7 +9,6 @@ vendor/
 .phpintel/
 .env
 .DS_Store
-*.lock
 .phpunit*
 .phpstorm.meta.php
 .php-cs-fixer.php

@@ -3,7 +3,7 @@ networks:
       pim:
 services:
   pim-web:
-    image: jksusu/vue-im:0.04
+    image: jksusu/pim-web:0.01
     container_name: pim-web
     privileged: true
     ports:
@@ -35,7 +35,7 @@ services:
     networks:
       - pim
   pim-server:
-    image: jksusu/hyperf-im:0.06
+    image: jksusu/pim-service:0.01
     container_name: pim-server
     privileged: true
     ports:
