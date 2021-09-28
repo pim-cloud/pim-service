@@ -14,6 +14,7 @@ use Hyperf\Utils\Context;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Paginator\LengthAwarePaginator;
 use Overtrue\Pinyin\Pinyin;
+use function Symfony\Component\Translation\t;
 
 class ContactsService
 {
@@ -288,5 +289,21 @@ class ContactsService
         }
 
         return $groupData;
+    }
+
+    /**
+     * 删除好友关系
+     * @param string $acceptUid
+     * @return false|int|mixed
+     */
+    public function deleteFriends(string $acceptUid)
+    {
+        ContactsFriend::where('main_uid', Context::get('uid'))
+            ->where('friend_uid', $acceptUid)
+            ->delete();
+        ContactsFriend::where('main_uid', friend_uid)
+            ->where('friend_uid', Context::get('uid'))
+            ->delete();
+        return true;
     }
 }

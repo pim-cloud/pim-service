@@ -65,7 +65,7 @@ class ContactsController extends AbstractController
             throw new ValidateException($validator->errors()->first());
         }
         $params = $validator->validated();
-        return $this->apiReturn((new ContactsService())->searchService((string)$params['accept_type'],(string)$params['keyword']));
+        return $this->apiReturn((new ContactsService())->searchService((string)$params['accept_type'], (string)$params['keyword']));
     }
 
     /**
@@ -130,5 +130,22 @@ class ContactsController extends AbstractController
     public function getContactGroups()
     {
         return $this->apiReturn((new ContactsService())->getContactGroups());
+    }
+
+    /**
+     * 删除好友
+     * @GetMapping(path="deleteFriends")
+     */
+    public function deleteFriends()
+    {
+        $validator = $this->validationFactory->make($this->request->all(),
+            [
+                'accept_uid' => 'required',
+            ]
+        );
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn((new ContactsService())->deleteFriends((string)$this->request->query('accept_uid')));
     }
 }
