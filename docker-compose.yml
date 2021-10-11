@@ -2,16 +2,7 @@ version: '3'
 networks:
       pim:
 services:
-  pim-web:
-    image: jksusu/pim-web:0.01
-    container_name: pim-web
-    privileged: true
-    ports:
-      - "80:80"
-    restart: always
-    networks:
-      - pim
-  mysql:
+  pim-mysql:
     image: mysql:5.7.29
     container_name: pim-mysql
     restart: unless-stopped
@@ -27,19 +18,28 @@ services:
       SERVICE_NAME: mysql
     networks:
         - pim
-  redis:
+  pim-redis:
     image: redis:6.0.6
     container_name: pim-redis
     ports:
       - "6379:6379"
     networks:
       - pim
-  pim-server:
+  pim-service:
     image: jksusu/pim-service:0.01
     container_name: pim-service
     privileged: true
     ports:
       - 9501:9501
       - 9502:9502
+    networks:
+      - pim
+  pim-web:
+    image: jksusu/pim-web:0.01
+    container_name: pim-web
+    privileged: true
+    ports:
+      - "80:80"
+    restart: always
     networks:
       - pim
