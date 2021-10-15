@@ -1,14 +1,14 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controller;
 
 use App\Exception\BusinessException;
-use App\Middleware\Auth\AuthMiddleware;
 use Hyperf\Contract\ConfigInterface;
+use App\Middleware\Auth\AuthMiddleware;
 use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
-use Hyperf\Utils\Context;
+use Hyperf\HttpServer\Annotation\PostMapping;
 
 /**
  * @Controller(prefix="file")

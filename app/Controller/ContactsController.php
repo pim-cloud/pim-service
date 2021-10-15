@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\ContactsService;
+use Hyperf\Di\Annotation\Inject;
 use App\Exception\ValidateException;
-use Hyperf\Validation\Contract\ValidatorFactoryInterface;
-use Hyperf\HttpServer\Annotation\PostMapping;
+use App\Middleware\Auth\AuthMiddleware;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
-use App\Middleware\Auth\AuthMiddleware;
-use Hyperf\Di\Annotation\Inject;
-use App\Service\ContactsService;
+use Hyperf\HttpServer\Annotation\PostMapping;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
 /**
  * 联系人模块
