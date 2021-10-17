@@ -225,31 +225,30 @@ class ContactsService
 
     /**
      * 获取好友列表
-     * @return mixed
+     * @return array
      */
-    public
-    function getContactsList()
+    public function getContactsList()
     {
         $contactsFriends = ContactsFriend::where('main_uid', Context::get('uid'))->get();
-        $friendData = [];
+
+        $data = [];
         if (!$contactsFriends->isEmpty()) {
+            $friendData = [];
             foreach ($contactsFriends as $k => $item) {
-                $members = Member::find($item->friend_uid);
+                $members = Member::findFromCache($item->friend_uid);
                 if ($members) {
                     $friendData[$k]['head_image'] = $members->head_image;
                     $friendData[$k]['nikename'] = $members->nikename;
-                    $friendData[$k]['code'] = $item->friend_uid;
+                    $friendData[$k]['uid'] = $item->friend_uid;
                     $friendData[$k]['type'] = 'personal';
                     $friendData[$k]['initials'] = $this->firstChar($members->nikename);
                 }
             }
+            foreach ($friendData as   $item) {
+                $data[$item['initials']][] = $item;
+            }
+            ksort($data, SORT_NATURAL);
         }
-        $data = [];
-        foreach ($friendData as $key => $val) {
-            $data[$val['initials']][] = $val;
-        }
-
-        ksort($data, SORT_NATURAL);
         return $data;
     }
 
