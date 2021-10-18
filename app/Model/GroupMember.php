@@ -33,4 +33,15 @@ class GroupMember extends Model
      * @var array
      */
     protected $casts = ['id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+
+    /**
+     * 是否在群
+     * @param string $groupNumber
+     * @param string $uid
+     * @return \Hyperf\Database\Model\Builder|\Hyperf\Database\Model\Model|object|null
+     */
+    public static function whetherGroupMember(string $groupNumber, string $uid)
+    {
+        return self::where('group_number', $groupNumber)->where('uid', $uid)->first();
+    }
 }
