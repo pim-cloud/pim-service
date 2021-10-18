@@ -103,6 +103,14 @@ class SessionListController extends AbstractController
      */
     public function sessionTopping()
     {
-        return $this->apiReturn((new SessionListService())->sessionToppingService());
+        $validator = $this->validationFactory->make($this->request->all(),
+            [
+                'sessionId' => 'required',
+            ]
+        );
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn((new SessionListService())->sessionToppingService((int)$validator->validated()['sessionId']));
     }
 }

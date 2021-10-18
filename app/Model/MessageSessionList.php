@@ -10,6 +10,7 @@ namespace App\Model;
  * @property string $uid
  * @property string $accept_uid
  * @property string $disturb_status
+ * @property string $topping
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -34,6 +35,7 @@ class MessageSessionList extends Model
         'uid',
         'accept_uid',
         'disturb_status',
+        'topping',
         'created_at',
         'updated_at',
     ];

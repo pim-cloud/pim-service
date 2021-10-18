@@ -24,7 +24,7 @@ class SessionListService
 
         $data = [];
 
-        foreach ($session as $key => $item) {
+        foreach ($session as  $item) {
 
             $member = Member::findFromCache($item->accept_uid);
 
