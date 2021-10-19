@@ -22,7 +22,7 @@ class MsgRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'accept_uid' => 'required|numeric',//接受方ID
+            'acceptUid' => 'required|numeric',//接受方ID
             'page' => 'required|numeric',//当前页
             'perPage' => 'required|numeric',//每页条数
         ];

@@ -120,7 +120,7 @@ class MessageService
     public function getMsgRecordService(array $request)
     {
         $where[] = ['send_uid', Context::get('uid')];
-        $where[] = ['accept_uid', $request['accept_uid']];
+        $where[] = ['accept_uid', $request['acceptUid']];
 
         //如果本地存在最后一条聊天记录id
         if (isset($request['last_msg_id']) && !empty($request['last_msg_id'])) {
@@ -129,7 +129,7 @@ class MessageService
 
         $data = [];
 
-        $listModel = MessageIndex::query()->where($where);
+        $listModel = MessageIndex::query()->with('messageOne')->where($where);
 
         $count = $listModel->count();//总条数
 
@@ -137,8 +137,15 @@ class MessageService
 
         if ($list) {
 
+            foreach ($list as $item) {
+                $item->content = $item->messageOne->content;
+                $item->content_type = $item->messageOne->content_type;
+                unset($item->messageOne);
+                unset($item->updated_at);
+            }
+
             $send = Member::find(Context::get('uid'));
-            $accept = Member::find($request['accept_uid']);
+            $accept = Member::find($request['acceptUid']);
 
             $data['count'] = $count;
             $data['send'] = [

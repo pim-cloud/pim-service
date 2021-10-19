@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\MessageService;
+use Hyperf\Di\Annotation\Inject;
 use App\Request\MsgRecordRequest;
 use App\Request\SendMessageRequest;
 use App\Exception\ValidateException;
@@ -13,6 +14,7 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
 /**
  * @Controller(prefix="message")
@@ -20,6 +22,13 @@ use Hyperf\HttpServer\Annotation\PostMapping;
  */
 class MessageController extends AbstractController
 {
+
+    /**
+     * @Inject()
+     * @var ValidatorFactoryInterface
+     */
+    protected $validationFactory;
+
     /**
      * 发送消息
      * @PostMapping(path="sendMessage")
