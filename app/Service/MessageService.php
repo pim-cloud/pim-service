@@ -123,13 +123,17 @@ class MessageService
         $where[] = ['accept_uid', $request['acceptUid']];
 
         //如果本地存在最后一条聊天记录id
-        if (isset($request['last_msg_id']) && !empty($request['last_msg_id'])) {
+        /*if (isset($request['last_msg_id']) && !empty($request['last_msg_id'])) {
             $where[] = ['msg_id', '<', $request['last_msg_id']];
-        }
+        }*/
 
         $data = [];
 
-        $listModel = MessageIndex::query()->with('messageOne')->where($where);
+        $listModel = MessageIndex::query()->with('messageOne')
+            ->where($where)->orWhere([
+                ['send_uid', $request['acceptUid']],
+                ['accept_uid', Context::get('uid')]
+            ]);
 
         $count = $listModel->count();//总条数
 
