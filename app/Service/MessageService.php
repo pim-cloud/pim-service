@@ -4,13 +4,12 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\Group;
-use App\Model\GroupMember;
 use App\Model\Member;
 use App\Model\Message;
+use Hyperf\Utils\Context;
+use App\Model\GroupMember;
 use App\Model\MessageIndex;
 use Hyperf\DbConnection\Db;
-use Hyperf\Utils\Collection;
-use Hyperf\Utils\Context;
 use App\Exception\BusinessException;
 
 class MessageService
@@ -47,7 +46,6 @@ class MessageService
 
         $message = new Message();
         $messageIndex = new MessageIndex();
-
 
         Db::beginTransaction();
         try {
@@ -120,7 +118,7 @@ class MessageService
     public function getMsgRecordService(array $request)
     {
         $where[] = ['send_uid', Context::get('uid')];
-        $where[] = ['accept_uid', $request['acceptUid']];
+        $where[] = ['accept_uid', $request['accept_code']];
 
         //如果本地存在最后一条聊天记录id
         /*if (isset($request['last_msg_id']) && !empty($request['last_msg_id'])) {
@@ -131,7 +129,7 @@ class MessageService
 
         $listModel = MessageIndex::query()->with('messageOne')
             ->where($where)->orWhere([
-                ['send_uid', $request['acceptUid']],
+                ['send_uid', $request['accept_code']],
                 ['accept_uid', Context::get('uid')]
             ]);
 
@@ -149,7 +147,22 @@ class MessageService
             }
 
             $send = Member::find(Context::get('uid'));
-            $accept = Member::find($request['acceptUid']);
+
+            if ($request['session_type'] === 'group') {
+                $group = Group::findFromCache($request['accept_code']);
+                $accept = [
+                    'uid' => $group->group_number,
+                    'nikename' => $group->group_name,
+                    'head_image' => $group->group_head_image,
+                ];
+            } else {
+                $member = Member::findFromCache($request['accept_code']);
+                $accept = [
+                    'uid' => $member->uid,
+                    'nikename' => $member->nikename,
+                    'head_image' => $member->head_image,
+                ];
+            }
 
             $data['count'] = $count;
             $data['send'] = [
@@ -157,11 +170,7 @@ class MessageService
                 'nikename' => $send->nikename,
                 'head_image' => $send->head_image,
             ];
-            $data['accept'] = [
-                'uid' => $accept->uid,
-                'nikename' => $accept->nikename,
-                'head_image' => $accept->head_image,
-            ];
+            $data['accept'] = $accept;
             $data['lists'] = $list;
 
         }

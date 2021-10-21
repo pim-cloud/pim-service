@@ -22,7 +22,8 @@ class MsgRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'acceptUid' => 'required|numeric',//接受方ID
+            'accept_code' => 'required|numeric',//接受方ID
+            'session_type' => 'required',//接收消息的类型
             'page' => 'required|numeric',//当前页
             'perPage' => 'required|numeric',//每页条数
         ];
@@ -31,8 +32,9 @@ class MsgRecordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'accept_uid.required' => 'password is required',
-            'accept_uid.numeric' => 'password is numeric',
+            'accept_code.required' => 'accept_code is required',
+            'accept_code.numeric' => 'accept_code is numeric',
+            'session_type.required' => 'session_type is required',
             'page.required' => 'page is required',
             'page.numeric' => 'page is numeric',
             'per_page.required' => 'per_page is required',

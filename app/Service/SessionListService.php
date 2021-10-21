@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Model\ContactsFriend;
-use App\Model\GroupMember;
+use App\Model\Group;
 use App\Model\Member;
-use App\Model\MessageSessionList;
+use App\Model\Message;
 use Hyperf\Utils\Context;
+use App\Model\GroupMember;
+use App\Model\ContactsFriend;
+use App\Model\MessageSessionList;
 
 class SessionListService
 {
@@ -24,22 +26,32 @@ class SessionListService
 
         $data = [];
 
-        foreach ($session as  $item) {
+        foreach ($session as $item) {
 
-            $member = Member::findFromCache($item->accept_uid);
+            if ($item->session_type === 'group') {
+                $group = Group::findFromCache($item->accept_uid);
+                $info = [
+                    'nikename' => $group->group_name,
+                    'head_image' => $group->group_head_image,
+                ];
+            } else {
+                $member = Member::findFromCache($item->accept_uid);
+                $info = [
+                    'nikename' => $member->nikename,
+                    'head_image' => $member->head_image,
+                ];
+            }
 
             $data[] = [
-                'session_id' => $item->session_id,
-                'session_type' => $item->session_type,
-                'accept_code' => $item->accept_uid,
-                'accept_info' => [
-                    'head_image' => $member->head_image,
-                    'nikename' => $member->nikename,
-                ],
-                'last_time' => '',
-                'last_message' => '',
-                'disturb_status' => $item->disturb_status,
+                'accept_info' => $info,
                 'topping' => $item->topping,
+                'last_time' => $item->last_time,
+                'session_id' => $item->session_id,
+                'accept_code' => $item->accept_uid,
+                'session_type' => $item->session_type,
+                'last_message' => $item->last_message,
+                'disturb_status' => $item->disturb_status,
+                'last_message_type' => $item->last_message_type,
             ];
         }
         return $data;
@@ -53,7 +65,7 @@ class SessionListService
     {
         if ($params['session_type'] === 'personal') {
             //判断是否是双向好友
-            $friend = ContactsFriend::twoWayFriend(Context::get('uid'), $params['code']);
+            $friend = ContactsFriend::twoWayFriend(Context::get('uid'), $params['accept_code']);
             if (!$friend) {
                 return ['code' => 0, 'msg' => '不是双向好友，不可以发信息'];
             }
@@ -61,19 +73,30 @@ class SessionListService
 
         if ($params['session_type'] === 'group') {
             //判断是否是群成员
-            $member = GroupMember::whetherGroupMember($params['code'], Context::get('uid'));
+            $member = GroupMember::where('group_number', $params['accept_code'])
+                ->where('uid', Context::get('uid'))->first();
             if (!$member) {
                 return ['code' => 0, 'msg' => '不是群成员，不可以发信息'];
             }
         }
 
+        //查询最后消息，时间
+        $message = Message::where('send_uid', $params['accept_code'])
+            ->where('accept_uid', Context::get('uid'))
+            ->orderBy('created_at','desc')
+            ->first();
+
         $session = MessageSessionList::where('uid', Context::get('uid'))
-            ->where('accept_uid', $params['code'])->first();
+            ->where('accept_uid', $params['accept_code'])
+            ->first();
         if (!$session) {
             $session = MessageSessionList::create([
                 'session_type' => $params['session_type'],
                 'uid' => Context::get('uid'),
-                'accept_uid' => $params['code'],
+                'accept_uid' => $params['accept_code'],
+                'last_time' => $message->created_at,
+                'last_message' => $message->content,
+                'last_message_type' => $message->content_type,
             ]);
         }
 
@@ -86,7 +109,7 @@ class SessionListService
             'session_id' => $session->session_id,
             'session_type' => $params['session_type'],
             'uid' => Context::get('uid'),
-            'accept_uid' => $params['code'],
+            'accept_uid' => $params['accept_code'],
             'disturb_status' => 'no',
         ];
 

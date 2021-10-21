@@ -8,8 +8,8 @@ namespace App\Model;
  * @property string $accept_uid 
  * @property int $msg_id
  * @property string $read_state 
- * @property string $create_at
- * @property string $update_at 
+ * @property string $created_at
+ * @property string $updated_at
  */
 class MessageIndex extends Model
 {

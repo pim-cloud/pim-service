@@ -45,7 +45,7 @@ class SessionListController extends AbstractController
         $validator = $this->validationFactory->make($this->request->all(),
             [
                 'session_type' => 'required',
-                'code' => 'required',
+                'accept_code' => 'required',
             ]
         );
         if ($validator->fails()) {
