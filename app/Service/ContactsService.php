@@ -300,7 +300,7 @@ class ContactsService
         ContactsFriend::where('main_uid', Context::get('uid'))
             ->where('friend_uid', $acceptUid)
             ->delete();
-        ContactsFriend::where('main_uid', friend_uid)
+        ContactsFriend::where('main_uid', $acceptUid)
             ->where('friend_uid', Context::get('uid'))
             ->delete();
         return true;

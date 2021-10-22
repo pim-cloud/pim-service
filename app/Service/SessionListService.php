@@ -83,7 +83,7 @@ class SessionListService
         //查询最后消息，时间
         $message = Message::where('send_uid', $params['accept_code'])
             ->where('accept_uid', Context::get('uid'))
-            ->orderBy('created_at','desc')
+            ->orderBy('created_at', 'desc')
             ->first();
 
         $session = MessageSessionList::where('uid', Context::get('uid'))
@@ -105,12 +105,21 @@ class SessionListService
             return ['code' => 0, 'msg' => '发起失败'];
         }
 
+        $accept = Member::findFromCache($params['accept_code']);
+
         $data = [
+            'accept_code' => $params['accept_code'],
+            'accept_info' => [
+                'nikename' => $accept->nikename,
+                'head_image' => $accept->head_image
+            ],
+            'disturb_status' => $session->disturb_status,
+            'last_message' => $message->content,
+            'last_message_type' => $message->content_type,
+            'last_time' => $message->created_at,
             'session_id' => $session->session_id,
             'session_type' => $params['session_type'],
-            'uid' => Context::get('uid'),
-            'accept_uid' => $params['accept_code'],
-            'disturb_status' => 'no',
+            'topping' => $session->topping,
         ];
 
         return $data;
