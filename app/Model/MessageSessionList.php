@@ -10,6 +10,7 @@ namespace App\Model;
  * @property string $uid
  * @property string $accept_uid
  * @property string $disturb_status
+ * @property string $on_line_status
  * @property string $topping
  * @property string $last_message
  * @property string $last_message_type
@@ -38,6 +39,7 @@ class MessageSessionList extends Model
         'uid',
         'accept_uid',
         'disturb_status',
+        'on_line_status',
         'topping',
         'last_message',
         'last_time',
