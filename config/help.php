@@ -63,3 +63,14 @@ if (!function_exists('getMmeberInfo')) {
             ->getMemberInfo($uid);
     }
 }
+
+/**
+ * 私钥解密数据
+ */
+if (!function_exists('decrypt')) {
+    function decrypt($ciphertext)
+    {
+        openssl_private_decrypt(base64_decode($ciphertext), $decrypted, file_get_contents(BASE_PATH . '/config/rsa/rsa_private_key.pem'));
+        return $decrypted;
+    }
+}

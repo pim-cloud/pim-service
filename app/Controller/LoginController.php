@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Exception\ValidateException;
 use App\Model\Member;
 use App\Tools\RedisTools;
 use App\Request\LoginRequest;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Qbhy\HyperfAuth\AuthManager;
 use Hyperf\Di\Annotation\Inject;
 use App\Request\RegisterRequest;
@@ -38,18 +40,43 @@ class LoginController extends AbstractController
      */
     protected $redisTools;
 
+
+    /**
+     * @Inject
+     * @var ValidatorFactoryInterface
+     */
+    protected $validationFactory;
+
     /**
      * @PostMapping(path="login")
      */
-    public function login(LoginRequest $request)
+    public function login()
     {
-        $params = $request->validated();
-        $member = Member::select(['uid', 'salt', 'username', 'head_image', 'nikename', 'autograph', 'password'])
-            ->where('username', $params['username'])
+        $params = $this->request->all();
+        if (!isset($params['ciphertext']) || empty($params['ciphertext'])) {
+            throw new ValidateException('ciphertext error');
+        }
+
+        $decryptedData = json_decode(decrypt($params['ciphertext']), true);
+
+        $validator = $this->validationFactory->make($decryptedData,
+            [
+                'username' => 'required',
+                'password' => 'required',
+                'scene' => 'required',
+            ]
+        );
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+
+        $member = Member::query()
+            ->select(['uid', 'salt', 'username', 'head_image', 'nikename', 'autograph', 'password'])
+            ->where('username', $decryptedData['username'])
             ->first();
-        if ($member && $member->password === md5($params['password'] . $member->salt)) {
+        if ($member && $member->password === md5($decryptedData['password'] . $member->salt)) {
             return $this->apiReturn([
-                'token' => $this->auth->guard('sso')->login($member, [], 'web')
+                'token' => $this->auth->guard('sso')->login($member, [], $decryptedData['scene'])
             ]);
         }
         return ['code' => 0, 'msg' => '账号或密码错误'];
@@ -88,7 +115,6 @@ class LoginController extends AbstractController
     {
         return $this->auth->guard('sso')->user();
     }
-
 
     /**
      * @Auth("sso")

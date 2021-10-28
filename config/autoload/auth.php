@@ -8,7 +8,7 @@ return [
     ],
     'guards' => [
         'sso' => [
-            'clients' => explode(',', env('AUTH_SSO_CLIENTS', 'pc')),
+            'clients' => explode(',', env('AUTH_SSO_CLIENTS', 'web')),
             'redis' => function () {
                 return make(\Hyperf\Redis\Redis::class);
             },
