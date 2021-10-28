@@ -6,10 +6,11 @@ namespace App\Controller;
 use App\Model\Member;
 use App\Tools\RedisTools;
 use App\Request\LoginRequest;
+use Qbhy\HyperfAuth\AuthManager;
 use Hyperf\Di\Annotation\Inject;
 use App\Request\RegisterRequest;
+use Qbhy\HyperfAuth\Annotation\Auth;
 use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 
@@ -18,6 +19,13 @@ use Hyperf\HttpServer\Contract\ResponseInterface;
  */
 class LoginController extends AbstractController
 {
+
+    /**
+     * @Inject
+     * @var AuthManager
+     */
+    protected $auth;
+
     /**
      * @Inject
      * @var ResponseInterface
@@ -31,62 +39,65 @@ class LoginController extends AbstractController
     protected $redisTools;
 
     /**
-     * @PostMapping(path="login", methods="post")
+     * @PostMapping(path="login")
      */
     public function login(LoginRequest $request)
     {
         $params = $request->validated();
-
-        $data = Member::select(['uid', 'salt', 'username', 'head_image', 'nikename', 'autograph'])
+        $member = Member::select(['uid', 'salt', 'username', 'head_image', 'nikename', 'autograph', 'password'])
             ->where('username', $params['username'])
-            ->where('password', $params['password'])
             ->first();
-
-        if ($data) {
-            $token = $this->setToken($data->toArray());
-            return $this->apiReturn(['token' => $token]);
+        if ($member && $member->password === md5($params['password'] . $member->salt)) {
+            return $this->apiReturn([
+                'token' => $this->auth->guard('sso')->login($member, [], 'web')
+            ]);
         }
-
-        return $this->apiReturn(['code' => 0, 'msg' => '账号或者密码错误']);
+        return ['code' => 0, 'msg' => '账号或密码错误'];
     }
 
     /**
-     * @PostMapping(path="register", methods="post")
+     * @PostMapping(path="register")
      */
     public function register(RegisterRequest $request)
     {
         $params = $request->validated();
         $data = Member::where('username', $params['username'])->first();
-        if ($data != null) {
+        if ($data <> null) {
             return $this->apiReturn(['code' => 0, 'msg' => '账号已存在']);
         }
-        $memberModel = new Member();
-        $memberModel->uid = getSnowflakeId();
-        $memberModel->username = $params['username'];
-        $memberModel->nikename = $params['nikename'];
-        $memberModel->head_image = 'http://cdn.jksusu.cn/A.jpg';
-        $memberModel->salt = substr(uniqid(), 0, 4);
-        $memberModel->password = $params['password'];
-        if (!$memberModel->save()) {
-            return $this->apiReturn(['code' => 0, 'msg' => '注册失败']);
+        $salt = getSnowflakeId();
+        $data = Member::create([
+            'uid' => getSnowflakeId(),
+            'username' => $params['username'],
+            'nikename' => $params['nikename'],
+            'head_image' => $params['head_image'],
+            'password' => md5($params['password'] . $salt),
+            'salt' => $salt,
+        ]);
+        if ($data) {
+            return ['code' => 200, 'msg' => '注册成功'];
         }
-        return $this->apiReturn();
-    }
-
-
-    public function setToken(array $data): string
-    {
-        $token = md5($data['uid'] . $data['salt']);
-        $this->redisTools->setTokenMappingUid((string)$token,(string)$data['uid']);//token映射uid
-        $this->redisTools->setUidMappingMember((string)$data['uid'], $data);//uid映射用户信息
-        return $token;
+        return ['code' => 0, 'msg' => '注册失败'];
     }
 
     /**
-     * @GetMapping(path="index")
+     * @Auth("sso")
+     * @PostMapping(path="member")
      */
-    public function index()
+    public function member()
     {
-        return 'you are sb!!';
+        return $this->auth->guard('sso')->user();
+    }
+
+
+    /**
+     * @Auth("sso")
+     * @PostMapping(path="logout")
+     */
+    public function logout()
+    {
+        $this->auth->guard('sso')->logout();
+
+        return ['code' => 200];
     }
 }

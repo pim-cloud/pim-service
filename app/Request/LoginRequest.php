@@ -24,6 +24,7 @@ class LoginRequest extends FormRequest
         return [
             'username' => 'required|max:25',
             'password' => 'required|max:25',
+            'scene' => 'required|max:3',
         ];
     }
 
@@ -34,6 +35,8 @@ class LoginRequest extends FormRequest
             'username.max' => 'username is max:25',
             'password.required' => 'password is required',
             'password.max' => 'password is max:25',
+            'scene.required' => 'scene is required',
+            'scene.max' => 'scene is max:25',
         ];
     }
 }
