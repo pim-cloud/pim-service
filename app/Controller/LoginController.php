@@ -3,18 +3,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Exception\ValidateException;
 use App\Model\Member;
-use App\Tools\RedisTools;
-use App\Request\LoginRequest;
-use Hyperf\Validation\Contract\ValidatorFactoryInterface;
-use Qbhy\HyperfAuth\AuthManager;
 use Hyperf\Di\Annotation\Inject;
-use App\Request\RegisterRequest;
+use Qbhy\HyperfAuth\AuthManager;
+use App\Exception\ValidateException;
 use Qbhy\HyperfAuth\Annotation\Auth;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
 /**
  * @Controller(prefix="login")
@@ -30,24 +26,12 @@ class LoginController extends AbstractController
 
     /**
      * @Inject
-     * @var ResponseInterface
-     */
-    protected $response;
-
-    /**
-     * @Inject
-     * @var RedisTools
-     */
-    protected $redisTools;
-
-
-    /**
-     * @Inject
      * @var ValidatorFactoryInterface
      */
     protected $validationFactory;
 
     /**
+     * 登录
      * @PostMapping(path="login")
      */
     public function login()
@@ -76,29 +60,47 @@ class LoginController extends AbstractController
             ->first();
         if ($member && $member->password === md5($decryptedData['password'] . $member->salt)) {
             return $this->apiReturn([
-                'token' => $this->auth->guard('sso')->login($member, [], $decryptedData['scene'])
+                'token' => $this->auth->guard()->login($member, [], $decryptedData['scene'])
             ]);
         }
         return ['code' => 0, 'msg' => '账号或密码错误'];
     }
 
     /**
+     * 注册账号
      * @PostMapping(path="register")
      */
-    public function register(RegisterRequest $request)
+    public function register()
     {
-        $params = $request->validated();
-        $data = Member::where('username', $params['username'])->first();
+        $params = $this->request->all();
+        if (!isset($params['ciphertext']) || empty($params['ciphertext'])) {
+            throw new ValidateException('ciphertext error');
+        }
+        $decryptedData = json_decode(decrypt($params['ciphertext']), true);
+        $validator = $this->validationFactory->make($decryptedData,
+            [
+                'username' => 'required',
+                'nikename' => 'required',
+                'password' => 'required',
+            ]
+        );
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+
+        $data = Member::where('username', $decryptedData['username'])->first();
         if ($data <> null) {
             return $this->apiReturn(['code' => 0, 'msg' => '账号已存在']);
         }
-        $salt = getSnowflakeId();
+
+        $salt = uniqid();
+
         $data = Member::create([
             'uid' => getSnowflakeId(),
-            'username' => $params['username'],
-            'nikename' => $params['nikename'],
-            'head_image' => $params['head_image'],
-            'password' => md5($params['password'] . $salt),
+            'username' => $decryptedData['username'],
+            'nikename' => $decryptedData['nikename'],
+            'head_image' => $decryptedData['head_image'],
+            'password' => md5($decryptedData['password'] . $salt),
             'salt' => $salt,
         ]);
         if ($data) {
@@ -108,15 +110,7 @@ class LoginController extends AbstractController
     }
 
     /**
-     * @Auth("sso")
-     * @PostMapping(path="member")
-     */
-    public function member()
-    {
-        return $this->auth->guard('sso')->user();
-    }
-
-    /**
+     * 退出登录
      * @Auth("sso")
      * @PostMapping(path="logout")
      */
@@ -124,6 +118,6 @@ class LoginController extends AbstractController
     {
         $this->auth->guard('sso')->logout();
 
-        return ['code' => 200];
+        return ['code' => 200, 'msg' => '退出成功'];
     }
 }

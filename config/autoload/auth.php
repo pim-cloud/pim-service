@@ -19,14 +19,6 @@ return [
                 return make(\Qbhy\HyperfAuth\HyperfRedisCache::class);
             },
         ],
-        'jwt' => [
-            'driver' => Qbhy\HyperfAuth\Guard\JwtGuard::class,
-            'provider' => 'member',
-            'secret' => env('SIMPLE_JWT_SECRET'),
-            'cache' => function () {
-                return make(\Qbhy\HyperfAuth\HyperfRedisCache::class);
-            },
-        ],
     ],
     'providers' => [
         'member' => [

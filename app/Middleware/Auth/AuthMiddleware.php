@@ -4,38 +4,31 @@ declare(strict_types=1);
 
 namespace App\Middleware\Auth;
 
-use App\Exception\AuthException;
-use App\Exception\ValidateException;
 use Hyperf\Utils\Context;
-use Psr\Container\ContainerInterface;
+use Qbhy\HyperfAuth\AuthManager;
+use Hyperf\Di\Annotation\Inject;
+use App\Exception\AuthException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Hyperf\Di\Annotation\Inject;
 
-class AuthMiddleware implements MiddlewareInterface
+class AuthMiddleware extends AuthManager implements MiddlewareInterface
 {
-
     /**
-     * @Inject()
-     * @var ContainerInterface
+     * @Inject
+     * @var AuthManager
      */
-    protected $container;
+    protected $auth;
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $token = $request->getHeaderLine('authentication');
-        if (empty($token)) {
-            throw new ValidateException('authentication failed');
+        $this->auth->check('Authorization be overdue');
+        $member = $this->auth->user();
+        if (empty($member)) {
+            throw new AuthException('user null');
         }
-        $redis = \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
-        $uid = $redis->get($token);
-        if (empty($uid)) {
-            throw new AuthException('请重新登录');
-        }
-        Context::set('uid', (string)$uid);
-
+        Context::set('uid', (string)$member->uid);
         return $handler->handle($request);
     }
 }
