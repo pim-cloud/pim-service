@@ -2,8 +2,9 @@
 
 namespace App\Process\Process;
 
-use Hyperf\Process\AbstractProcess;
+use App\Redis\MessageQueue;
 use Hyperf\Process\ProcessManager;
+use Hyperf\Process\AbstractProcess;
 
 class Message extends AbstractProcess
 {
@@ -11,20 +12,16 @@ class Message extends AbstractProcess
 
     public function handle(): void
     {
-        $consumer = $this->container->get(\App\Stream\Consumer\Consumer::class);
-
-        //创建消费组
-        $queuename = getLocalUnique();
-
-        $consumer->createConsumerGroup($queuename, $queuename);
+        $queue = $this->name . ':' . getLocalUnique();
+        MessageQueue::getInstance()->createConsumerGroup($queue, $queue);
 
         while (ProcessManager::isRunning()) {
-            $data = $consumer->getConsumerGroupMsg($queuename, $queuename, $queuename);
+            $data = MessageQueue::getInstance()->pop($queue, $queue, $this->name);//弹出一条消息
             if (empty($data)) {
                 continue;
             }
-            $msgId = key($data[$queuename]);
-            $msg = $data[$queuename][$msgId];
+            $msgId = key($data[$queue]);
+            $msg = $data[$queue][$msgId];
             $consumerLogic = $this->container->get(\App\Process\Consumer\EventExplain::class);
             $msg['msg_id'] = $msgId;
             $consumerLogic->consume($msg);

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Redis\OnLine;
 use Swoole\Http\Request;
 use App\Tools\RedisTools;
 use Swoole\Websocket\Frame;
@@ -36,35 +37,38 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
 
     public function onClose($server, int $fd, int $reactorId): void
     {
-        //根据fd获取当前下线的uid
-        $uid = $this->redisTools->getUidByMappingFd((int)$fd);
+        $sfd = 'web:' . $fd;//web连接标识
+
+        $uid = OnLine::getInstance()->getUidByFd($sfd);
         if (!empty($uid)) {
-            //清除fd
-            $this->redisTools->delH5OnLineFd($fd);
-            //清除uid在线设备hash 掉线fd
-            $this->redisTools->redis->hDel('uidOnLine>>' . $uid, 'h5_fd');
+            //清除在线标识和uid映射
+            OnLine::getInstance()->clearOnLineMember($sfd, $uid);
+        } else {
+            var_dump('未查询到信息 fd: ' . $sfd . '  掉线信息');
         }
-        var_dump('closed');
     }
 
     public function onOpen($server, Request $request): void
     {
-        if (is_null($request->get['Authentication'])) {
+        if (is_null($request->server['query_string'])) {
             $server->close($request->fd);
         }
-        $authentication = mb_substr($request->get['Authentication'], 7);
-        $member = $this->auth->getPayload($authentication);
+        $member = $this->auth->getPayload($request->server['query_string']);
         if (!isset($member['uid']) || empty($member['uid'])) {
             $server->close($request->fd);
         }
-        $uid = $member['uid'];
         //获取web登录token
-        $webToken = $this->redisTools->redis->hGet('u:token:' . $uid, 'web');
-        if ($webToken <> $authentication) {
+        $webToken = redis()->hGet('u:token:' . $member['uid'], 'web');
+        if ($webToken != $request->server['query_string']) {
             $server->close($request->fd);
         }
-        $this->redisTools->setH5OnLineFd((string)$uid, (int)$request->fd);//增加在线客户端hash
-        $this->redisTools->setFdMappingUid((int)$request->fd, (string)$uid);//增加uid fd 互相映射
+
+        //websocket是给web单独连接
+        $uid = 'web:' . $member['uid'];
+        $fd = 'web:' . $request->fd;
+
+        OnLine::getInstance()->setOnline($uid, $fd);
+        OnLine::getInstance()->setOnline($fd, $uid);
         $server->push($request->fd, 'Opened');
     }
 }

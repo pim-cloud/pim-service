@@ -6,7 +6,6 @@
 if (!function_exists('getLocalUnique')) {
     function getLocalUnique(): string
     {
-        return 'test';
         return substr(md5(implode(',', swoole_get_local_ip())), 0, 10);
     }
 }
@@ -29,9 +28,7 @@ if (!function_exists('getSnowflakeId')) {
 if (!function_exists('enter')) {
     function enter($params): string
     {
-        $stringId = Hyperf\Utils\ApplicationContext::getContainer()
-            ->get(\App\Stream\Producer\Producer::class)
-            ->push(getLocalUnique(), $params);
+        $stringId = \App\Redis\MessageQueue::getInstance()->push(getLocalUnique(), $params);
         $id = '';
         if ($stringId) {
             $id = str_replace('-', '', $stringId);
@@ -46,8 +43,7 @@ if (!function_exists('enter')) {
 if (!function_exists('ack')) {
     function ack(string $msgIds)
     {
-        return Hyperf\Utils\ApplicationContext::getContainer()
-            ->get(\App\Stream\Consumer\Consumer::class)
+        return \App\Redis\MessageQueue::getInstance()
             ->ack(getLocalUnique(), getLocalUnique(), [$msgIds]);
     }
 }
@@ -70,7 +66,21 @@ if (!function_exists('getMmeberInfo')) {
 if (!function_exists('decrypt')) {
     function decrypt($ciphertext)
     {
-        openssl_private_decrypt(base64_decode($ciphertext), $decrypted, file_get_contents(BASE_PATH . '/config/rsa/rsa_private_key.pem'));
+        openssl_private_decrypt(
+            base64_decode($ciphertext),
+            $decrypted,
+            file_get_contents(BASE_PATH . '/config/rsa/rsa_private_key.pem')
+        );
         return $decrypted;
+    }
+}
+
+/**
+ * 获取redis
+ */
+if (!function_exists('redis')) {
+    function redis()
+    {
+        return \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
     }
 }
