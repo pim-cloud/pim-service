@@ -7,8 +7,6 @@ namespace App\Redis\Structure;
 /**
  * Class Stream
  * @package App\Redis\Structure
- * @time 2021/11/1
- * @contact  jksusuppx@qq.com
  */
 class Stream extends AbstractRedis
 {
@@ -33,7 +31,7 @@ class Stream extends AbstractRedis
      */
     public function add(array $messages, string $queue = '', string $id = '*', int $maxlength = 0, $isApproximate = false)
     {
-        return $this->redis()->xadd($this->getKey() . $queue, $id, $messages, $maxlength, $isApproximate);
+        return $this->redis()->xadd($this->getKey($queue), $id, $messages, $maxlength, $isApproximate);
     }
 
     /**
@@ -75,7 +73,8 @@ class Stream extends AbstractRedis
      */
     public function xGroup(string $operation, string $key, string $group, $msgId = '0', $mkStream = false)
     {
-        return $this->redis()->xGroup($operation, $key, $group, $msgId, $mkStream);
+        var_dump($this->getKey($key));
+        return $this->redis()->xGroup($operation, $this->getKey($key), $group, $msgId, $mkStream);
     }
 
 
@@ -191,6 +190,6 @@ class Stream extends AbstractRedis
      */
     public function getReadGroup(string $group, string $consumer, string $queue, string $entry = '>', $count = 1, $block = 5000)
     {
-        return $this->redis()->xReadGroup($group, $consumer, [$queue => $entry], $count, $block);
+        return $this->redis()->xReadGroup($group, $consumer, [$this->getKey($queue) => $entry], $count, $block);
     }
 }

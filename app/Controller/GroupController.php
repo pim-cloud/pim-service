@@ -13,7 +13,6 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\GetMapping;
-use App\Middleware\Group\LeaderRoleMiddleware;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
 /**
@@ -41,7 +40,6 @@ class GroupController extends AbstractController
     /**
      * 群成员编辑
      * @PostMapping(path="leaderTransfer")
-     * @Middleware(LeaderRoleMiddleware::class)
      */
     public function groupMemberEdit()
     {
@@ -61,7 +59,6 @@ class GroupController extends AbstractController
     /**
      * 解散群
      * @PostMapping(path="dissolution")
-     * @Middleware(LeaderRoleMiddleware::class)
      */
     public function dissolution()
     {
