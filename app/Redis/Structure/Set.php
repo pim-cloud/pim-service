@@ -7,10 +7,6 @@ namespace App\Redis\Structure;
 class Set extends AbstractRedis
 {
 
-    protected $prefix = 'redis';
-
-    protected $key = 'set';
-
     /**
      * 将元素加入集合
      * @param string $key
@@ -19,7 +15,7 @@ class Set extends AbstractRedis
      */
     public function add(string $key, ...$value)
     {
-        return $this->redis()->sAdd($this->getKey($key), ...$value);
+        return $this->redis()->sAdd($key, ...$value);
     }
 
     /**
@@ -29,7 +25,7 @@ class Set extends AbstractRedis
      */
     public function del(string $key, $value)
     {
-        return $this->redis()->sRem($this->getKey($key), $value);
+        return $this->redis()->sRem($key, $value);
     }
 
     /**
@@ -40,7 +36,7 @@ class Set extends AbstractRedis
      */
     public function sisMember(string $key, $value)
     {
-        return $this->redis()->sismember($this->getKey($key), $value);
+        return $this->redis()->sismember($key, $value);
     }
 
     /**
@@ -50,6 +46,6 @@ class Set extends AbstractRedis
      */
     public function sMembers(string $key)
     {
-        return $this->redis()->sMembers($this->getKey($key));
+        return $this->redis()->sMembers($key);
     }
 }

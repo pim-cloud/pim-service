@@ -7,10 +7,6 @@ namespace App\Redis\Structure;
 
 class Zset extends AbstractRedis
 {
-    protected $prefix = 'redis';
-
-    protected $key = 'zset';
-
     /**
      * @param string $key
      * @param $value
@@ -19,6 +15,6 @@ class Zset extends AbstractRedis
      */
     public function add(string $key, $value, $score)
     {
-        return $this->redis()->zAdd($this->getKey($key), $score, $value);
+        return $this->redis()->zAdd($key, $score, $value);
     }
 }

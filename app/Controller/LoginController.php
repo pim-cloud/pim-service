@@ -9,6 +9,7 @@ use Qbhy\HyperfAuth\AuthManager;
 use App\Exception\ValidateException;
 use Qbhy\HyperfAuth\Annotation\Auth;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
@@ -112,7 +113,7 @@ class LoginController extends AbstractController
     /**
      * 退出登录
      * @Auth("sso")
-     * @PostMapping(path="logout")
+     * @GetMapping(path="logout")
      */
     public function logout()
     {

@@ -10,14 +10,10 @@ namespace App\Redis\Structure;
  */
 class Stream extends AbstractRedis
 {
-    protected $prefix = 'redis:stream';
-
-    protected $key = 'stream';
-
     /**
      * 投递消息
-     * @param array $messages 消息内容
      * @param string $queue 队列名称
+     * @param array $messages 消息内容
      * @param string $id 消息ID 默认 * 自动生成
      * @param int $maxlength 队列最大长度默认0，不限制
      * @param bool $isApproximate
@@ -29,9 +25,9 @@ class Stream extends AbstractRedis
      * $this->add('mystream', "*", ['field' => 'value'], 10, true);
      * </pre>
      */
-    public function add(array $messages, string $queue = '', string $id = '*', int $maxlength = 0, $isApproximate = false)
+    public function add(string $queue, array $messages, string $id = '*', int $maxlength = 0, $isApproximate = false)
     {
-        return $this->redis()->xadd($this->getKey($queue), $id, $messages, $maxlength, $isApproximate);
+        return $this->redis()->xadd($queue, $id, $messages, $maxlength, $isApproximate);
     }
 
     /**
@@ -73,8 +69,7 @@ class Stream extends AbstractRedis
      */
     public function xGroup(string $operation, string $key, string $group, $msgId = '0', $mkStream = false)
     {
-        var_dump($this->getKey($key));
-        return $this->redis()->xGroup($operation, $this->getKey($key), $group, $msgId, $mkStream);
+        return $this->redis()->xGroup($operation, $key, $group, $msgId, $mkStream);
     }
 
 
@@ -190,6 +185,6 @@ class Stream extends AbstractRedis
      */
     public function getReadGroup(string $group, string $consumer, string $queue, string $entry = '>', $count = 1, $block = 5000)
     {
-        return $this->redis()->xReadGroup($group, $consumer, [$this->getKey($queue) => $entry], $count, $block);
+        return $this->redis()->xReadGroup($group, $consumer, [$queue => $entry], $count, $block);
     }
 }

@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Redis\OnLine;
 use Swoole\Http\Request;
-use App\Tools\RedisTools;
 use Swoole\Websocket\Frame;
 use Hyperf\Di\Annotation\Inject;
 use Qbhy\HyperfAuth\AuthManager;
@@ -22,12 +21,6 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
      */
     protected $auth;
 
-    /**
-     * @Inject
-     * @var RedisTools
-     */
-    protected $redisTools;
-
     public function onMessage($server, Frame $frame): void
     {
         if ($frame->data === 'ping') {
@@ -37,14 +30,12 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
 
     public function onClose($server, int $fd, int $reactorId): void
     {
-        $sfd = 'web:' . $fd;//web连接标识
-
-        $uid = OnLine::getInstance()->getUidByFd($sfd);
+        $uid = OnLine::getInstance()->getUidByFd('web:', $fd);
         if (!empty($uid)) {
             //清除在线标识和uid映射
-            OnLine::getInstance()->clearOnLineMember($sfd, $uid);
+            OnLine::getInstance()->clearOnLineMember('web:' . $fd, 'web:' . $uid);
         } else {
-            var_dump('未查询到信息 fd: ' . $sfd . '  掉线信息');
+            var_dump('未查询到信息 fd: ' . $fd . '  掉线信息');
         }
     }
 
@@ -54,7 +45,8 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
             $server->close($request->fd);
         }
         $member = $this->auth->getPayload($request->server['query_string']);
-        if (!isset($member['uid']) || empty($member['uid'])) {
+        if (isset($member['exp']) && $member['exp'] <= time()) {
+            var_dump('token已经过期');
             $server->close($request->fd);
         }
         //获取web登录token
@@ -62,13 +54,9 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
         if ($webToken != $request->server['query_string']) {
             $server->close($request->fd);
         }
-
         //websocket是给web单独连接
-        $uid = 'web:' . $member['uid'];
-        $fd = 'web:' . $request->fd;
-
-        OnLine::getInstance()->setOnline($uid, $fd);
-        OnLine::getInstance()->setOnline($fd, $uid);
+        OnLine::getInstance()->setOnline('web:', $member['uid'], $request->fd);
+        OnLine::getInstance()->setOnline('web:', $request->fd, $member['uid']);
         $server->push($request->fd, 'Opened');
     }
 }

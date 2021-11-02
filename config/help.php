@@ -28,7 +28,7 @@ if (!function_exists('getSnowflakeId')) {
 if (!function_exists('enter')) {
     function enter($params): string
     {
-        $stringId = \App\Redis\MessageQueue::getInstance()->push(getLocalUnique(), $params);
+        $stringId = \App\Redis\MessageQueue::getInstance()->push('queue:'.getLocalUnique(), $params);
         $id = '';
         if ($stringId) {
             $id = str_replace('-', '', $stringId);
@@ -45,18 +45,6 @@ if (!function_exists('ack')) {
     {
         return \App\Redis\MessageQueue::getInstance()
             ->ack(getLocalUnique(), getLocalUnique(), [$msgIds]);
-    }
-}
-
-/**
- * 获取用户信息
- */
-if (!function_exists('getMmeberInfo')) {
-    function getMmeberInfo(string $uid)
-    {
-        return Hyperf\Utils\ApplicationContext::getContainer()
-            ->get(\App\Tools\RedisTools::class)
-            ->getMemberInfo($uid);
     }
 }
 

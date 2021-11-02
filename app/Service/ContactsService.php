@@ -3,28 +3,18 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Exception\BusinessException;
-use App\Model\ContactsAddRecord;
-use App\Model\ContactsFriend;
 use App\Model\Group;
-use App\Model\GroupMember;
 use App\Model\Member;
-use App\Tools\RedisTools;
 use Hyperf\Utils\Context;
-use Hyperf\Di\Annotation\Inject;
-use Hyperf\Paginator\LengthAwarePaginator;
+use App\Model\GroupMember;
 use Overtrue\Pinyin\Pinyin;
-use function Symfony\Component\Translation\t;
+use App\Model\ContactsFriend;
+use App\Model\ContactsAddRecord;
+use App\Exception\BusinessException;
+use Hyperf\Paginator\LengthAwarePaginator;
 
 class ContactsService
 {
-
-    /**
-     * @Inject
-     * @var RedisTools
-     */
-    protected $redisTools;
-
 
     /**
      * 查询符合条件的用户列表

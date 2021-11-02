@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace App\Redis\Structure;
 
-
 class Hash extends AbstractRedis
 {
-    protected $prefix = 'redis';
-
-    protected $key = 'hash';
-
     /**
      * 给哈希表key设置一组字段值
      * @param string $table hash表名
-     * @param string $field 字段
+     * @param string $hashKey 字段
      * @param string $value 值
      * @return bool
      */
-    public function set(string $table, string $field, string $value)
+    public function set(string $table, string $hashKey, string $value)
     {
-        return $this->redis()->hSet($this->getKey($table), $field, $value);
+        return $this->redis()->hSet($table, $hashKey, $value);
     }
 
     /**
@@ -31,7 +26,7 @@ class Hash extends AbstractRedis
      */
     public function get(string $key, $hashKey)
     {
-        return $this->redis()->hGet($this->getKey($key), $hashKey);
+        return $this->redis()->hGet($key, $hashKey);
     }
 
     /**
@@ -41,7 +36,7 @@ class Hash extends AbstractRedis
      */
     public function getAll(string $key)
     {
-        return $this->redis()->hGetAll($this->getKey($key));
+        return $this->redis()->hGetAll($key);
     }
 
     /**
@@ -52,7 +47,7 @@ class Hash extends AbstractRedis
      */
     public function del(string $key, ...$field)
     {
-        return $this->redis()->hDel($this->getKey($key), ...$field);
+        return $this->redis()->hDel($key, ...$field);
     }
 
     /**
@@ -63,7 +58,7 @@ class Hash extends AbstractRedis
      */
     public function ifExists(string $key, $value): bool
     {
-        return $this->redis()->hExists($this->getKey($key), $value);
+        return $this->redis()->hExists($key, $value);
     }
 
     /**
@@ -73,6 +68,6 @@ class Hash extends AbstractRedis
      */
     public function count(string $key)
     {
-        return $this->redis()->hLen($this->getKey($key));
+        return $this->redis()->hLen($key);
     }
 }

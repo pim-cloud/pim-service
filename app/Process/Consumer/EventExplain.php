@@ -1,22 +1,14 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Process\Consumer;
 
+use App\Redis\OnLine;
 use App\Model\GroupMember;
-use App\Model\Member;
-use App\Tools\RedisTools;
-use Hyperf\Di\Annotation\Inject;
 
 class EventExplain
 {
-
-    /**
-     * @Inject
-     * @var RedisTools
-     */
-    protected $redisTools;
-
     protected $sender;
 
     public function __construct()
@@ -66,7 +58,9 @@ class EventExplain
             if ($value->uid === $data['send_uid']) {
                 continue;
             }
-            $this->sender->send((int)$this->redisTools->getH5OnLineFd($value->uid), json_encode($data));
+            //获取web端连接标识
+            $fd = OnLine::getInstance()->getFdByUid('web:', $value->uid);
+            $this->sender->send($fd, json_encode($data));
         }
     }
 
@@ -76,7 +70,8 @@ class EventExplain
      */
     public function singleSend($data)
     {
-        $this->sender->send((int)$this->redisTools->getH5OnLineFd($data['accept_uid']), json_encode($data));
+        $fd = OnLine::getInstance()->getFdByUid('web:', $data['accept_uid']);
+        $this->sender->send($fd, json_encode($data));
     }
 
 }

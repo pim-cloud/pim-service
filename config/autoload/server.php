@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * This file is part of Hyperf.
  *
@@ -9,6 +10,7 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
 use Hyperf\Server\Server;
 use Hyperf\Server\Event;
 use Swoole\Constant;
@@ -38,10 +40,25 @@ return [
                 Event::ON_CLOSE => [Hyperf\WebSocketServer\Server::class, 'onClose'],
             ],
         ],
+        [
+            'name' => 'tcp',
+            'type' => Server::SERVER_BASE,
+            'host' => '0.0.0.0',
+            'port' => 9503,
+            'sock_type' => SWOOLE_SOCK_TCP,
+            'callbacks' => [
+                Event::ON_RECEIVE => [App\Controller\TcpController::class, 'onReceive'],
+                Event::ON_CONNECT => [App\Controller\TcpController::class, 'onConnect'],
+                Event::ON_CLOSE => [App\Controller\TcpController::class, 'onClose'],
+            ],
+            'settings' => [
+                // 按需配置
+            ],
+        ],
     ],
     'settings' => [
-        Constant::OPTION_HEARTBEAT_IDLE_TIME=> 120, // 表示一个连接如果120秒内未向服务器发送任何数据，此连接将被强制关闭
-        Constant::OPTION_HEARTBEAT_CHECK_INTERVAL=> 60, // 表示每60秒遍历一次
+        Constant::OPTION_HEARTBEAT_IDLE_TIME => 120, // 表示一个连接如果120秒内未向服务器发送任何数据，此连接将被强制关闭
+        Constant::OPTION_HEARTBEAT_CHECK_INTERVAL => 60, // 表示每60秒遍历一次
         Constant::OPTION_ENABLE_COROUTINE => true,
         Constant::OPTION_WORKER_NUM => swoole_cpu_num(),
         Constant::OPTION_PID_FILE => BASE_PATH . '/runtime/hyperf.pid',

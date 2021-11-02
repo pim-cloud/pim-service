@@ -8,27 +8,42 @@ use App\Redis\Structure\Hash;
 
 class OnLine extends Hash
 {
-    protected $key = 'online';
+    protected $key = 'redis:online:mapping';
 
     /**
      * 设置在线设备和连接标识
-     * @param string $key
-     * @param string $value
+     * @param string $channel
+     * @param  $hashKey
+     * @param  $value
      * @return bool
      */
-    public function setOnline(string $key, string $value)
+    public function setOnline(string $channel, $hashKey, $value)
     {
-        return $this->set($this->key, $key, $value);
+        return $this->set($this->key, $channel . $hashKey, $channel . $value);
     }
 
     /**
      * 根据fd获取uid
-     * @param string $fd
-     * @return string|false
+     * @param string $channel
+     * @param  $fd
+     * @return string
      */
-    public function getUidByFd(string $fd)
+    public function getUidByFd(string $channel, $fd)
     {
-        return $this->get($this->key, $fd);
+        $uid = $this->get($this->key, $channel . $fd);
+        return (string)str_replace($channel, '', $uid);
+    }
+
+    /**
+     * 获取fd
+     * @param string $channel
+     * @param string $uid
+     * @return int
+     */
+    public function getFdByUid(string $channel, string $uid)
+    {
+        $fd = $this->get($this->key, $channel . $uid);
+        return (int)str_replace($channel, '', $fd);
     }
 
     /**

@@ -17,17 +17,17 @@ class MessageQueue extends Stream
      */
     public function push(string $queue, array $messages)
     {
-        return $this->add($messages, $queue);
+        return $this->add($queue, $messages);
     }
 
     /**
      * 从消费组中弹出一条消息,非阻塞模式
+     * @param string $queue
      * @param string $group
      * @param string $consumer
-     * @param string $queue
      * @return array
      */
-    public function pop(string $group, string $consumer, string $queue)
+    public function pop(string $queue, string $group, string $consumer)
     {
         return $this->getReadGroup($group, $consumer, $queue);
     }

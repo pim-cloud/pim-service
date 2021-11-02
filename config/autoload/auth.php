@@ -15,6 +15,8 @@ return [
             'driver' => Qbhy\HyperfAuth\Guard\SsoGuard::class,
             'provider' => 'member',
             'secret' => env('SSO_JWT_SECRET'),
+            'ttl' => (int) env('SIMPLE_JWT_TTL', 60 * 60 * 24),
+            'refresh_ttl' => (int) env('SIMPLE_JWT_REFRESH_TTL', 60 * 60 * 24 * 2),
             'cache' => function () {
                 return make(\Qbhy\HyperfAuth\HyperfRedisCache::class);
             },

@@ -7,10 +7,6 @@ namespace App\Redis\Structure;
 
 class Strings extends AbstractRedis
 {
-    protected $prefix = 'redis';
-
-    protected $key = 'string';
-
     /**
      * 缓存
      * @param string $key
@@ -20,7 +16,7 @@ class Strings extends AbstractRedis
      */
     public function set(string $key, string $val, $expires = null)
     {
-        return $this->redis()->set($this->getKey($key), $val, $expires);
+        return $this->redis()->set($key, $val, $expires);
     }
 
 
@@ -31,7 +27,7 @@ class Strings extends AbstractRedis
      */
     public function get(string $key)
     {
-        return $this->redis()->get($this->getKey($key));
+        return $this->redis()->get($key);
     }
 
     /**
@@ -41,6 +37,6 @@ class Strings extends AbstractRedis
      */
     public function del(string $key)
     {
-        return $this->redis()->del($this->getKey($key));
+        return $this->redis()->del($key);
     }
 }

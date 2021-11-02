@@ -1,11 +1,4 @@
-FROM hyperf/hyperf:7.4-alpine-v3.11-swoole
-LABEL maintainer="Hyperf Developers <group@hyperf.io>" version="1.0" license="MIT" app.name="Hyperf"
-
-##
-# ---------- env settings ----------
-##
-# --build-arg timezone=Asia/Shanghai
-ARG timezone
+FROM hyperf/hyperf:8.0-alpine-v3.14-swoole
 
 ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
     APP_ENV=prod \
@@ -18,7 +11,7 @@ RUN set -ex \
     && php -m \
     && php --ri swoole \
     #  ---------- some config ----------
-    && cd /etc/php7 \
+    && cd /etc/php8 \
     # - config PHP
     && { \
         echo "upload_max_filesize=128M"; \
@@ -29,20 +22,18 @@ RUN set -ex \
     # - config timezone
     && ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
     && echo "${TIMEZONE}" > /etc/timezone \
+    # ---------- composer dns ----------
+    && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/ \
     # ---------- clear works ----------
     && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
     && echo -e "\033[42;37m Build Completed :).\033[0m\n"
 
 WORKDIR /opt/www
 
-# Composer Cache
-# COPY ./composer.* /opt/www/
-# RUN composer install --no-dev --no-scripts
-
 COPY . /opt/www
-#RUN composer install --no-dev -o && php bin/hyperf.php
-RUN composer install
 
-EXPOSE 9501 9502
+RUN composer install --no-dev -o && php bin/hyperf.php
 
-ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "server:watch"]
+EXPOSE 9501 9502 9503
+
+ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]

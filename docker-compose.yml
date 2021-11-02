@@ -1,6 +1,6 @@
 version: '3'
 networks:
-      pim:
+  pim:
 services:
   pim-mysql:
     image: mysql:5.7.29
@@ -17,12 +17,12 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
-        - pim
+      - pim
   pim-redis:
     image: redis:6.0.6
     container_name: pim-redis
     ports:
-      - "6379:6379"
+      - 6379:6379
     networks:
       - pim
   pim-service:
@@ -32,6 +32,7 @@ services:
     ports:
       - 9501:9501
       - 9502:9502
+      - 9503:9503
     networks:
       - pim
   pim-web:
@@ -39,7 +40,16 @@ services:
     container_name: pim-web
     privileged: true
     ports:
-      - "80:80"
+      - 80:80
     restart: always
+    networks:
+      - pim
+  pim-nginx:
+    image: nginx:latest
+    container_name: pim-nginx
+    ports:
+      - 83:80
+    volumes:
+      - ./:/etc/nginx/conf.d
     networks:
       - pim
