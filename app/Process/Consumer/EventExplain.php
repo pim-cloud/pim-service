@@ -71,6 +71,8 @@ class EventExplain
     public function singleSend($data)
     {
         $fd = OnLine::getInstance()->getFdByUid('web:', $data['accept_uid']);
+        var_dump('当前推送的fd');
+        var_dump($fd);
         $this->sender->send($fd, json_encode($data));
     }
 

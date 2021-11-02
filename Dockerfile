@@ -1,10 +1,11 @@
-FROM hyperf/hyperf:8.0-alpine-v3.14-swoole
+FROM hyperf/hyperf:8.0-alpine-v3.12-swoole
+
+ARG timezone
 
 ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
     APP_ENV=prod \
     SCAN_CACHEABLE=(true)
 
-# update
 RUN set -ex \
     # show php version and extensions
     && php -v \
@@ -22,10 +23,9 @@ RUN set -ex \
     # - config timezone
     && ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
     && echo "${TIMEZONE}" > /etc/timezone \
-    # ---------- composer dns ----------
-    && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/ \
     # ---------- clear works ----------
     && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
+    && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/ \
     && echo -e "\033[42;37m Build Completed :).\033[0m\n"
 
 WORKDIR /opt/www

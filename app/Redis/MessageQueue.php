@@ -17,6 +17,7 @@ class MessageQueue extends Stream
      */
     public function push(string $queue, array $messages)
     {
+        var_dump($queue);
         return $this->add($queue, $messages);
     }
 
@@ -29,7 +30,7 @@ class MessageQueue extends Stream
      */
     public function pop(string $queue, string $group, string $consumer)
     {
-        return $this->getReadGroup($group, $consumer, $queue);
+        return $this->getReadGroup($queue, $group, $consumer);
     }
 
     /**

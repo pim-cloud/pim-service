@@ -168,9 +168,9 @@ class Stream extends AbstractRedis
     /**
      * 从消费组中获取消息,被传递给消费组且未ack的消息，
      * 将会被储存在消费组内的待处理条目列表上，即已送达但尚未确认的消息ID列表。
+     * @param string $queue 队列名
      * @param string $group 消费组
      * @param string $consumer 消费者名
-     * @param string $queue 队列名
      * @param string $entry 条目 '>'表示特殊ID，只接受没有被消费过的消息
      * @param string $count 条数
      * @param string $block 阻塞时间
@@ -183,7 +183,7 @@ class Stream extends AbstractRedis
      * $this->getReadGroup('mygroup', 'consumer2', ['s1' => 0, 's2' => 0], 1, 1000);
      * </pre>
      */
-    public function getReadGroup(string $group, string $consumer, string $queue, string $entry = '>', $count = 1, $block = 5000)
+    public function getReadGroup(string $queue,string $group, string $consumer,  string $entry = '>', $count = 1, $block = 5000)
     {
         return $this->redis()->xReadGroup($group, $consumer, [$queue => $entry], $count, $block);
     }

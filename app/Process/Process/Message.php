@@ -12,13 +12,13 @@ class Message extends AbstractProcess
 
     public function handle(): void
     {
-        $queue = 'queue' . getLocalUnique();
-        $consumerGroup = 'group';
-        $consumer = 'consumer';
-        MessageQueue::getInstance()->createConsumerGroup($queue, $consumerGroup);
+        $queue = 'queue:' . getLocalUnique();
+        $group = 'test';
+        $consumer = 'a';
+        MessageQueue::getInstance()->createConsumerGroup($queue, $group);
 
         while (ProcessManager::isRunning()) {
-            $data = MessageQueue::getInstance()->pop($queue, $consumerGroup, $consumer);//弹出一条消息
+            $data = MessageQueue::getInstance()->pop($queue, $group, $consumer);//弹出一条消息
             if (empty($data)) {
                 continue;
             }
