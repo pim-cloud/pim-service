@@ -27,7 +27,7 @@ class Member extends Model implements CacheableInterface, Authenticatable
 
     use Snowflake;
 
-    protected $hidden = ['password','salt'];
+    protected $hidden = ['password', 'salt'];
     /**
      * The table associated with the model.
      *
@@ -69,5 +69,24 @@ class Member extends Model implements CacheableInterface, Authenticatable
     {
         // TODO: Implement retrieveById() method.
         return Member::findFromCache($key);
+    }
+
+    /**
+     * 修改密码
+     * @param $uid
+     * @param $oldP
+     * @param $newP
+     * @return bool
+     */
+    public static function saveP($uid, $oldP, $newP): bool
+    {
+        $member = Member::findFromCache($uid);
+
+        if ($member->password != md5($oldP . $member->salt)) return false;
+
+        $salt = getSnowflakeId();
+        $member->password = md5($newP . $salt);
+        $member->salt = $salt;
+        return $member->save();
     }
 }

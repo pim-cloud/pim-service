@@ -25,7 +25,7 @@ class MessageService
     public function sendMessageService(array $request)
     {
         $request['created_at'] = date('Y-m-d:H:i:s');
-
+        $request['content'] = htmlspecialchars_decode($request['content']);
         //查询发送人信息
         if ($request['accept_type'] === 'group') {
             $groups = Group::find($request['accept_uid']);
