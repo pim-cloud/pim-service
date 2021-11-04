@@ -28,7 +28,7 @@ if (!function_exists('getSnowflakeId')) {
 if (!function_exists('enter')) {
     function enter($params): string
     {
-        $stringId = \App\Redis\MessageQueue::getInstance()->push('queue:'.getLocalUnique(), $params);
+        $stringId = \App\Redis\MessageQueue::getInstance()->push('queue:' . getLocalUnique(), $params);
         $id = '';
         if ($stringId) {
             $id = str_replace('-', '', $stringId);
