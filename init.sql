@@ -32,17 +32,6 @@ CREATE TABLE `contacts_add_record` (
                                        `updated_at` datetime DEFAULT NULL,
                                        PRIMARY KEY (`record_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='好友申请表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `contacts_add_record`
---
-
-LOCK TABLES `contacts_add_record` WRITE;
-/*!40000 ALTER TABLE `contacts_add_record` DISABLE KEYS */;
-INSERT INTO `contacts_add_record` VALUES ('16348879362420','289084231349448705','289063021190324225','hello','agree','2021-10-22 07:32:16','2021-10-22 07:33:08');
-/*!40000 ALTER TABLE `contacts_add_record` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `contacts_friend`
@@ -59,17 +48,6 @@ CREATE TABLE `contacts_friend` (
                                    `updated_at` datetime DEFAULT NULL,
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `contacts_friend`
---
-
-LOCK TABLES `contacts_friend` WRITE;
-/*!40000 ALTER TABLE `contacts_friend` DISABLE KEYS */;
-INSERT INTO `contacts_friend` VALUES (41,'289084231349448705','289063021190324225','2021-10-22 07:33:08','2021-10-22 07:33:08');
-/*!40000 ALTER TABLE `contacts_friend` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `contacts_recent`
@@ -85,16 +63,6 @@ CREATE TABLE `contacts_recent` (
                                    `create_at` datetime DEFAULT NULL,
                                    `update_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='当前消息列表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `contacts_recent`
---
-
-LOCK TABLES `contacts_recent` WRITE;
-/*!40000 ALTER TABLE `contacts_recent` DISABLE KEYS */;
-/*!40000 ALTER TABLE `contacts_recent` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `group`
@@ -114,16 +82,6 @@ CREATE TABLE `group` (
                          `updated_at` datetime NOT NULL COMMENT '更新时间',
                          PRIMARY KEY (`group_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `group`
---
-
-LOCK TABLES `group` WRITE;
-/*!40000 ALTER TABLE `group` DISABLE KEYS */;
-/*!40000 ALTER TABLE `group` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `group_member`
@@ -142,16 +100,6 @@ CREATE TABLE `group_member` (
                                 `updated_at` datetime NOT NULL,
                                 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=utf8mb4 COMMENT='群成员';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `group_member`
---
-
-LOCK TABLES `group_member` WRITE;
-/*!40000 ALTER TABLE `group_member` DISABLE KEYS */;
-/*!40000 ALTER TABLE `group_member` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `group_member_join_record`
@@ -186,8 +134,8 @@ CREATE TABLE `member` (
                           `uid` varchar(32) NOT NULL COMMENT 'uid',
                           `username` varchar(11) CHARACTER SET utf8 NOT NULL COMMENT '用户名',
                           `email` varchar(50) CHARACTER SET utf8 DEFAULT NULL COMMENT '邮箱',
-                          `password` varchar(15) CHARACTER SET utf8 DEFAULT NULL COMMENT '密码',
-                          `salt` varchar(4) CHARACTER SET utf8 DEFAULT NULL,
+                          `password` varchar(32) CHARACTER SET utf8 DEFAULT NULL COMMENT '密码',
+                          `salt` varchar(32) CHARACTER SET utf8 DEFAULT NULL,
                           `head_image` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '头像',
                           `nikename` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '昵称',
                           `autograph` varchar(50) CHARACTER SET utf8 DEFAULT NULL COMMENT '签名',
@@ -197,17 +145,6 @@ CREATE TABLE `member` (
                           UNIQUE KEY `member_UN` (`username`),
                           KEY `member_username_IDX` (`username`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `member`
---
-
-LOCK TABLES `member` WRITE;
-/*!40000 ALTER TABLE `member` DISABLE KEYS */;
-INSERT INTO `member` VALUES ('289063021190324225','jksusu',NULL,'jksusu','6125','http://cdn.jksusu.cn/xiyangyang.jpg','meet',NULL,'2021-08-25 15:53:15','2021-08-25 15:53:15'),('289084231349448705','ppx',NULL,'ppxppx','6126','http://cdn.jksusu.cn/meiyangyang.jpg','ppx',NULL,'2021-08-25 17:17:31','2021-08-25 17:17:31');
-/*!40000 ALTER TABLE `member` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `message`
@@ -227,16 +164,6 @@ CREATE TABLE `message` (
                            `updated_at` datetime DEFAULT NULL,
                            PRIMARY KEY (`msg_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息内容';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `message`
---
-
-LOCK TABLES `message` WRITE;
-/*!40000 ALTER TABLE `message` DISABLE KEYS */;
-/*!40000 ALTER TABLE `message` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `message_index`
@@ -254,16 +181,6 @@ CREATE TABLE `message_index` (
                                  `updated_at` datetime DEFAULT NULL,
                                  PRIMARY KEY (`msg_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息索引表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `message_index`
---
-
-LOCK TABLES `message_index` WRITE;
-/*!40000 ALTER TABLE `message_index` DISABLE KEYS */;
-/*!40000 ALTER TABLE `message_index` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `message_session_list`
@@ -286,28 +203,3 @@ CREATE TABLE `message_session_list` (
                                         `updated_at` datetime NOT NULL,
                                         PRIMARY KEY (`session_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8mb4 COMMENT='消息会话列表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `message_session_list`
---
-
-LOCK TABLES `message_session_list` WRITE;
-/*!40000 ALTER TABLE `message_session_list` DISABLE KEYS */;
-/*!40000 ALTER TABLE `message_session_list` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping routines for database 'im'
---
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2021-10-22 16:36:49
