@@ -38,7 +38,7 @@ class SessionListService
                 $member = Member::findFromCache($item->accept_uid);
                 $info = [
                     'nikename' => $member->nikename,
-                    'head_image' => $member->head_image,
+                    'head_image' => picturePath($member->head_image),
                 ];
             }
 

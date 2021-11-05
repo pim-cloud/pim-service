@@ -44,7 +44,7 @@ class MemberController extends AbstractController
             unset($member['password']);
             unset($member['salt']);
         }
-        $member->head_image = config('file.storage.qiniu.domain') . $member->head_image;
+        $member->head_image = picturePath($member->head_image);
         return $this->apiReturn($member);
     }
 
@@ -97,7 +97,6 @@ class MemberController extends AbstractController
     public function updateImage()
     {
         $file = $this->request->file('file');
-        var_dump($file);
         if (!$file) {
             throw new BusinessException('文件不存在');
         }

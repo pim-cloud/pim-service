@@ -184,7 +184,7 @@ class GroupService
                         'uid' => $members->uid,
                         'username' => $members->username,
                         'email' => $members->email,
-                        'head_image' => $members->head_image,
+                        'head_image' => picturePath($members->head_image),
                         'nikename' => $members->nikename,
                         'autograph' => $members->autograph,
                         'created_at' => $item->created_at,

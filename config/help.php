@@ -72,3 +72,27 @@ if (!function_exists('redis')) {
         return \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
     }
 }
+
+/**
+ * 测试环境打印
+ */
+if (!function_exists('output')) {
+    function output($str = '')
+    {
+        if (!env('APP_DEBUG', false)) {
+            return '';
+        }
+        var_dump($str) . PHP_EOL;
+    }
+}
+
+/**
+ * 获取图片链接
+ */
+if (!function_exists('picturePath')) {
+    function picturePath($path = '')
+    {
+        return empty($path) ? '' : config('file.storage.qiniu.domain') . $path;
+    }
+}
+

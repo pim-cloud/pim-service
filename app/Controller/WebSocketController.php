@@ -33,9 +33,10 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
         $uid = OnLine::getInstance()->getUidByFd('web:', $fd);
         if (!empty($uid)) {
             //清除在线标识和uid映射
+            output('用户掉线*清除fd映射信息fd:web:' . $fd . ' uid:web:' . $uid);
             OnLine::getInstance()->clearOnLineMember('web:' . $fd, 'web:' . $uid);
         } else {
-            var_dump('未查询到信息 fd: ' . $fd . '  掉线信息');
+            output('用户掉线*未查询到fd:web:' . $fd . ' 的信息*清除映射失败');
         }
     }
 
@@ -46,7 +47,6 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
         }
         $member = $this->auth->getPayload($request->server['query_string']);
         if (isset($member['exp']) && $member['exp'] <= time()) {
-            var_dump('token已经过期');
             $server->close($request->fd);
         }
         //获取web登录token
@@ -57,6 +57,7 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
         //websocket是给web单独连接
         OnLine::getInstance()->setOnline('web:', $member['uid'], $request->fd);
         OnLine::getInstance()->setOnline('web:', $request->fd, $member['uid']);
+        output('uid:' . $member['uid'] . '连接成功****fd:' . $request->fd);
         $server->push($request->fd, 'Opened');
     }
 }

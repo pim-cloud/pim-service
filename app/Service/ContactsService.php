@@ -26,15 +26,18 @@ class ContactsService
     public function searchUsersLists(string $keyword, int $currentPage, int $perPage)
     {
         $members = Member::where('username', 'like', '%' . $keyword . '%')->get();
-        if (!$members->isEmpty()) {
-            foreach ($members as $key => $val) {
-                unset($val['password']);
-                unset($val['salt']);
-            }
-        }
+
         $lengthAwarePaginator = new LengthAwarePaginator($members, $members->count(), $perPage, $currentPage);
 
         $data = $lengthAwarePaginator->toArray();
+
+        var_dump($data);
+        foreach ($data as $key => $val) {
+
+            unset($val['password']);
+            unset($val['salt']);
+        }
+
         if (isset($data['data']) && !empty($data['data'])) {
             return $data;
         }
@@ -57,6 +60,7 @@ class ContactsService
                     if ($val->uid === Context::get('uid')) {
                         unset($members[$key]);
                     }
+                    $val->head_image = picturePath($val->head_image);
                     unset($val['password']);
                     unset($val['salt']);
                 }
@@ -126,7 +130,7 @@ class ContactsService
                     [
                         'record_id' => $item->record_id,
                         'send_uid' => $item->send_uid,
-                        'send_head_image' => $members->head_image,
+                        'send_head_image' => picturePath($members->head_image),
                         'send_nikename' => $members->nikename,
                         'accept_uid' => $item->accept_uid,
                         'remarks' => $item->remarks,
@@ -227,14 +231,14 @@ class ContactsService
             foreach ($contactsFriends as $k => $item) {
                 $members = Member::findFromCache($item->friend_uid);
                 if ($members) {
-                    $friendData[$k]['head_image'] = $members->head_image;
+                    $friendData[$k]['head_image'] = picturePath($members->head_image);
                     $friendData[$k]['nikename'] = $members->nikename;
                     $friendData[$k]['uid'] = $item->friend_uid;
                     $friendData[$k]['type'] = 'personal';
                     $friendData[$k]['initials'] = $this->firstChar($members->nikename);
                 }
             }
-            foreach ($friendData as   $item) {
+            foreach ($friendData as $item) {
                 $data[$item['initials']][] = $item;
             }
             ksort($data, SORT_NATURAL);
@@ -259,8 +263,7 @@ class ContactsService
      * 查询我拥有的群组和好友
      * @return array
      */
-    public
-    function getContactGroups()
+    public function getContactGroups()
     {
         //查询群组
         $groupData = [];

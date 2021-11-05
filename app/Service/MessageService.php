@@ -29,7 +29,7 @@ class MessageService
         //查询发送人信息
         if ($request['accept_type'] === 'group') {
             $groups = Group::find($request['accept_uid']);
-            $request['head_image'] = $groups->group_head_image;
+            $request['head_image'] = picturePath($groups->group_head_image);
             $request['nikename'] = $groups->group_name;
         }
 
@@ -153,14 +153,14 @@ class MessageService
                 $accept = [
                     'uid' => $group->group_number,
                     'nikename' => $group->group_name,
-                    'head_image' => $group->group_head_image,
+                    'head_image' => picturePath($group->group_head_image),
                 ];
             } else {
                 $member = Member::findFromCache($request['accept_code']);
                 $accept = [
                     'uid' => $member->uid,
                     'nikename' => $member->nikename,
-                    'head_image' => $member->head_image,
+                    'head_image' => picturePath($member->head_image),
                 ];
             }
 
@@ -168,7 +168,7 @@ class MessageService
             $data['send'] = [
                 'uid' => $send->uid,
                 'nikename' => $send->nikename,
-                'head_image' => $send->head_image,
+                'head_image' => picturePath($send->head_image),
             ];
             $data['accept'] = $accept;
             $data['lists'] = $list;
