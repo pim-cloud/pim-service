@@ -70,4 +70,15 @@ class Hash extends AbstractRedis
     {
         return $this->redis()->hLen($key);
     }
+
+    /**
+     * 获取给定字段的值
+     * @param $key
+     * @param array $hashKeys
+     * @return array
+     */
+    public function hMGET($key, array $hashKeys)
+    {
+        return $this->redis()->HMGET($key, $hashKeys);
+    }
 }

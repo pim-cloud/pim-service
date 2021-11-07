@@ -41,10 +41,8 @@ class MemberController extends AbstractController
         }
         $member = Member::findFromCache($uid);
         if (!empty($member)) {
-            unset($member['password']);
-            unset($member['salt']);
+            $member->head_image = picturePath($member->head_image);
         }
-        $member->head_image = picturePath($member->head_image);
         return $this->apiReturn($member);
     }
 

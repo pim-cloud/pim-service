@@ -31,13 +31,6 @@ class ContactsService
 
         $data = $lengthAwarePaginator->toArray();
 
-        var_dump($data);
-        foreach ($data as $key => $val) {
-
-            unset($val['password']);
-            unset($val['salt']);
-        }
-
         if (isset($data['data']) && !empty($data['data'])) {
             return $data;
         }
@@ -54,15 +47,13 @@ class ContactsService
     public function searchService(string $acceptType, string $keyword)
     {
         if ($acceptType === 'personal') {
-            $members = Member::where('username', 'like', '%' . $keyword . '%')->get();
+            $members = Member::whereRaw ("(concat(username,uid,nikename) like '%".$keyword."%')")->get();
             if ($members) {
                 foreach ($members as $key => $val) {
                     if ($val->uid === Context::get('uid')) {
                         unset($members[$key]);
                     }
                     $val->head_image = picturePath($val->head_image);
-                    unset($val['password']);
-                    unset($val['salt']);
                 }
             }
             return $members;

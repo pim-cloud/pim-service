@@ -57,7 +57,7 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
         //websocket是给web单独连接
         OnLine::getInstance()->setOnline('web:', $member['uid'], $request->fd);
         OnLine::getInstance()->setOnline('web:', $request->fd, $member['uid']);
-        output('uid:' . $member['uid'] . '连接成功****fd:' . $request->fd);
+        output('uid:' . $member['uid'] . '*连接成功*fd:' . $request->fd);
         $server->push($request->fd, 'Opened');
     }
 }

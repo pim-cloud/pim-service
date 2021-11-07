@@ -11,4 +11,5 @@ declare(strict_types=1);
  */
 return [
     \App\Process\Process\Message::class,
+    \App\Process\Clear::class,
 ];

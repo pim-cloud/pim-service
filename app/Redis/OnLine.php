@@ -31,7 +31,7 @@ class OnLine extends Hash
     public function getUidByFd(string $channel, $fd)
     {
         $uid = $this->get($this->key, $channel . $fd);
-        return (int)substr($uid,4);
+        return (int)substr($uid, 4);
     }
 
     /**
@@ -43,7 +43,7 @@ class OnLine extends Hash
     public function getFdByUid(string $channel, string $uid)
     {
         $fd = $this->get($this->key, $channel . $uid);
-        return (int)substr($fd,4);
+        return (int)substr($fd, 4);
     }
 
     /**
@@ -54,5 +54,28 @@ class OnLine extends Hash
     public function clearOnLineMember(...$member)
     {
         return $this->del($this->key, ...$member);
+    }
+
+    /**
+     * 获取所有的字段
+     * @return mixed
+     */
+    public function getAllFields()
+    {
+        return $this->getAll($this->key);
+    }
+
+    /**
+     * 获取值
+     * @param $key
+     * @return string
+     */
+    public function getVal($key)
+    {
+        $data = $this->hMGET($this->key, [$key]);
+        if (!empty($data)) {
+            return $data[$key];
+        }
+        return [];
     }
 }
