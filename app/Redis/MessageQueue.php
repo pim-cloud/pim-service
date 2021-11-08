@@ -17,7 +17,6 @@ class MessageQueue extends Stream
      */
     public function push(string $queue, array $messages)
     {
-        var_dump($queue);
         return $this->add($queue, $messages);
     }
 
@@ -53,5 +52,18 @@ class MessageQueue extends Stream
     public function delConsumerGroup(string $queue, string $group)
     {
         return $this->xGroup('DELGROUP', $queue, $group);
+    }
+
+    /**
+     * 消息ack
+     * @param $queue
+     * @param $group
+     * @param $ids
+     * @return int
+     */
+    public function acks($queue, $group, $ids)
+    {
+        output('消息ack*'.$ids);
+        return $this->ack($queue, $group, [$ids]);
     }
 }

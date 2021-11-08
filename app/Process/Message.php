@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Process\Process;
+namespace App\Process;
 
 use App\Redis\MessageQueue;
 use Hyperf\Process\ProcessManager;

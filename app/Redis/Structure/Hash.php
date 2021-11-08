@@ -26,7 +26,7 @@ class Hash extends AbstractRedis
      */
     public function get(string $key, $hashKey)
     {
-        return $this->redis()->hGet($key, $hashKey);
+        return $this->redis()->hGet($key, (string)$hashKey);
     }
 
     /**

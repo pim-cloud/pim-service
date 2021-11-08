@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Model\Group;
 use App\Model\Member;
 use App\Model\Message;
+use App\Redis\SessionList;
 use Hyperf\Utils\Context;
 use App\Model\GroupMember;
 use App\Model\MessageIndex;
@@ -28,15 +29,15 @@ class MessageService
         $request['content'] = htmlspecialchars_decode($request['content']);
         //查询发送人信息
         if ($request['accept_type'] === 'group') {
-            $groups = Group::find($request['accept_uid']);
+            $groups = Group::findFromCache($request['accept_uid']);
             $request['head_image'] = picturePath($groups->group_head_image);
-            $request['nikename'] = $groups->group_name;
+            $request['nickname'] = $groups->group_name;
         }
 
-        $members = Member::find($request['send_uid']);
+        $members = Member::findFromCache($request['send_uid']);
 
         $request['send_head_image'] = $members->head_image;
-        $request['send_nikename'] = $members->nikename;
+        $request['send_nickname'] = $members->nickname;
 
         $id = enter($request);
 
@@ -85,8 +86,6 @@ class MessageService
             Db::rollBack();
             throw new BusinessException('发送失败' . $e->getMessage());
         }
-
-
     }
 
 
@@ -152,14 +151,14 @@ class MessageService
                 $group = Group::findFromCache($request['accept_code']);
                 $accept = [
                     'uid' => $group->group_number,
-                    'nikename' => $group->group_name,
+                    'nickname' => $group->group_name,
                     'head_image' => picturePath($group->group_head_image),
                 ];
             } else {
                 $member = Member::findFromCache($request['accept_code']);
                 $accept = [
                     'uid' => $member->uid,
-                    'nikename' => $member->nikename,
+                    'nickname' => $member->nickname,
                     'head_image' => picturePath($member->head_image),
                 ];
             }
@@ -167,7 +166,7 @@ class MessageService
             $data['count'] = $count;
             $data['send'] = [
                 'uid' => $send->uid,
-                'nikename' => $send->nikename,
+                'nickname' => $send->nickname,
                 'head_image' => picturePath($send->head_image),
             ];
             $data['accept'] = $accept;

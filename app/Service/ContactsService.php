@@ -47,7 +47,7 @@ class ContactsService
     public function searchService(string $acceptType, string $keyword)
     {
         if ($acceptType === 'personal') {
-            $members = Member::whereRaw ("(concat(username,uid,nikename) like '%".$keyword."%')")->get();
+            $members = Member::whereRaw ("(concat(username,uid,nickname) like '%".$keyword."%')")->get();
             if ($members) {
                 foreach ($members as $key => $val) {
                     if ($val->uid === Context::get('uid')) {
@@ -122,7 +122,7 @@ class ContactsService
                         'record_id' => $item->record_id,
                         'send_uid' => $item->send_uid,
                         'send_head_image' => picturePath($members->head_image),
-                        'send_nikename' => $members->nikename,
+                        'send_nickname' => $members->nickname,
                         'accept_uid' => $item->accept_uid,
                         'remarks' => $item->remarks,
                         'status' => $item->status,
@@ -191,7 +191,7 @@ class ContactsService
             //查询发送人基础信息
             $member = Member::find($params['send_uid']);
             $params['head_image'] = $member->head_image;
-            $params['nikename'] = $member->nikename;
+            $params['nickname'] = $member->nickname;
 
             goto queue;
 
@@ -223,10 +223,10 @@ class ContactsService
                 $members = Member::findFromCache($item->friend_uid);
                 if ($members) {
                     $friendData[$k]['head_image'] = picturePath($members->head_image);
-                    $friendData[$k]['nikename'] = $members->nikename;
+                    $friendData[$k]['nickname'] = $members->nickname;
                     $friendData[$k]['uid'] = $item->friend_uid;
                     $friendData[$k]['type'] = 'personal';
-                    $friendData[$k]['initials'] = $this->firstChar($members->nikename);
+                    $friendData[$k]['initials'] = $this->firstChar($members->nickname);
                 }
             }
             foreach ($friendData as $item) {
@@ -264,7 +264,7 @@ class ContactsService
                 $group = Group::find($item->group_number);
                 if ($group) {
                     $groupData[$k]['head_image'] = $group->group_head_image;
-                    $groupData[$k]['nikename'] = $group->group_name;
+                    $groupData[$k]['nickname'] = $group->group_name;
                     $groupData[$k]['code'] = $group->group_number;
                     $groupData[$k]['type'] = 'group';
                 }

@@ -15,7 +15,7 @@ use Hyperf\ModelCache\CacheableInterface;
  * @property string $email
  * @property string $password
  * @property string $head_image
- * @property string $nikename
+ * @property string $nickname
  * @property string $salt
  * @property string $autograph
  * @property string $create_at
@@ -48,7 +48,7 @@ class Member extends Model implements CacheableInterface, Authenticatable
         'email',
         'password',
         'head_image',
-        'nikename',
+        'nickname',
         'salt',
         'autograph',
     ];

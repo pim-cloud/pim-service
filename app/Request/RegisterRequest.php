@@ -23,7 +23,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'username' => 'required|max:25',
-            'nikename' => 'required|max:25',
+            'nickname' => 'required|max:25',
             'password' => 'required|max:15',
         ];
     }

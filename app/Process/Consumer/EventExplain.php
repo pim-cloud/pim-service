@@ -22,8 +22,7 @@ class EventExplain
         if (empty($data)) {
             return false;
         }
-        var_dump('准备分发消息');
-        var_dump($data);
+        output('开始分发消息');
         switch ($data['message_type']) {
             case 'chat':
                 if ($data['accept_type'] === 'group') {
@@ -33,9 +32,7 @@ class EventExplain
                 }
                 break;
             case 'create_group':
-                var_dump('创建群聊,推送群广播消息');
-                var_dump($data);
-                //群广播
+                output('创建群聊，给群成员广播消息');
                 $this->groupRadioBroadcast($data);
                 break;
             default:
@@ -71,8 +68,9 @@ class EventExplain
     public function singleSend($data)
     {
         $fd = OnLine::getInstance()->getFdByUid('web:', $data['accept_uid']);
-        var_dump('当前推送的fd');
-        var_dump($fd);
+
+        output('单聊消息推送*发送人*' . $data['send_uid'] . '*接收人*' . $data['accept_uid'] . '*fd*' . $fd);
+
         $this->sender->send($fd, json_encode($data));
     }
 

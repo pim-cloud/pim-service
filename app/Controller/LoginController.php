@@ -56,7 +56,7 @@ class LoginController extends AbstractController
         }
 
         $member = Member::query()
-            ->select(['uid', 'salt', 'username', 'head_image', 'nikename', 'autograph', 'password'])
+            ->select(['uid', 'salt', 'username', 'head_image', 'nickname', 'autograph', 'password'])
             ->where('username', $decryptedData['username'])
             ->first();
         if ($member && $member->password === md5($decryptedData['password'] . $member->salt)) {
@@ -81,7 +81,7 @@ class LoginController extends AbstractController
         $validator = $this->validationFactory->make($decryptedData,
             [
                 'username' => 'required',
-                'nikename' => 'required',
+                'nickname' => 'required',
                 'password' => 'required',
             ]
         );
@@ -99,7 +99,7 @@ class LoginController extends AbstractController
         $data = Member::create([
             'uid' => getSnowflakeId(),
             'username' => $decryptedData['username'],
-            'nikename' => $decryptedData['nikename'],
+            'nickname' => $decryptedData['nickname'],
             'head_image' => $decryptedData['head_image'],
             'password' => md5($decryptedData['password'] . $salt),
             'salt' => $salt,

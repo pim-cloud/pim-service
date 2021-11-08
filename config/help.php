@@ -44,7 +44,7 @@ if (!function_exists('ack')) {
     function ack(string $msgIds)
     {
         return \App\Redis\MessageQueue::getInstance()
-            ->ack(getLocalUnique(), getLocalUnique(), [$msgIds]);
+            ->acks('queue:' . getLocalUnique(), 'test', $msgIds);
     }
 }
 

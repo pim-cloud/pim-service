@@ -10,6 +10,6 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
-    \App\Process\Process\Message::class,
+    \App\Process\Message::class,
     \App\Process\Clear::class,
 ];

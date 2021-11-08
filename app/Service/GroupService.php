@@ -60,7 +60,7 @@ class GroupService
                 'accept_uid' => $groupNumber,
                 'message_type' => 'create_group',
                 'head_image' => $params['group_head_image'],
-                'nikename' => $params['group_name'],
+                'nickname' => $params['group_name'],
             ]);
 
 
@@ -185,7 +185,7 @@ class GroupService
                         'username' => $members->username,
                         'email' => $members->email,
                         'head_image' => picturePath($members->head_image),
-                        'nikename' => $members->nikename,
+                        'nickname' => $members->nickname,
                         'autograph' => $members->autograph,
                         'created_at' => $item->created_at,
                         'type' => $item->type,
