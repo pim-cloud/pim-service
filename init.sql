@@ -194,7 +194,7 @@ CREATE TABLE `message_session_list` (
                                         `topping` enum('yes','no') NOT NULL DEFAULT 'no',
                                         `session_type` enum('group','personal') DEFAULT NULL COMMENT '会话类型(群聊，单聊)',
                                         `uid` varchar(32) NOT NULL COMMENT '我的uid',
-                                        `unread` int(11) NOT NULL COMMENT '未读消息数量',
+                                        `unread` int(11) NOT NULL DEFAULT '0' COMMENT '未读消息数量',,
                                         `accept_uid` varchar(32) NOT NULL COMMENT '接收到uid',
                                         `disturb_status` enum('yes','no') NOT NULL DEFAULT 'no' COMMENT '是否屏蔽消息，不提示。',
                                         `last_message` varchar(500) DEFAULT NULL,

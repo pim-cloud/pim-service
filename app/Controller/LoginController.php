@@ -44,13 +44,7 @@ class LoginController extends AbstractController
 
         $decryptedData = json_decode(decrypt($params['ciphertext']), true);
 
-        $validator = $this->validationFactory->make($decryptedData,
-            [
-                'username' => 'required',
-                'password' => 'required',
-                'scene' => 'required',
-            ]
-        );
+        $validator = $this->validationFactory->make($decryptedData, ['username' => 'required', 'password' => 'required', 'scene' => 'required',]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
@@ -78,13 +72,7 @@ class LoginController extends AbstractController
             throw new ValidateException('ciphertext error');
         }
         $decryptedData = json_decode(decrypt($params['ciphertext']), true);
-        $validator = $this->validationFactory->make($decryptedData,
-            [
-                'username' => 'required',
-                'nickname' => 'required',
-                'password' => 'required',
-            ]
-        );
+        $validator = $this->validationFactory->make($decryptedData, ['username' => 'required', 'nickname' => 'required', 'password' => 'required',]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
@@ -100,7 +88,7 @@ class LoginController extends AbstractController
             'uid' => getSnowflakeId(),
             'username' => $decryptedData['username'],
             'nickname' => $decryptedData['nickname'],
-            'head_image' => $decryptedData['head_image'],
+            'head_image' => 'morentouxiang.png',
             'password' => md5($decryptedData['password'] . $salt),
             'salt' => $salt,
         ]);
