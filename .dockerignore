@@ -5,6 +5,7 @@
 .idea/
 .git/
 runtime/
+test/
 vendor/
 .phpintel/
 .env
@@ -13,5 +14,9 @@ vendor/
 .phpstorm.meta.php
 .php-cs-fixer.php
 .gitignore
+README.md
+Dockerfile
+docker-compose.yml
+init.sql
 .github/
 phpunit.xml

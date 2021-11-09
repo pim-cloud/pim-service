@@ -57,7 +57,7 @@ if (!function_exists('decrypt')) {
         openssl_private_decrypt(
             base64_decode($ciphertext),
             $decrypted,
-            file_get_contents(BASE_PATH . '/config/rsa/rsa_private_key.pem')
+            file_get_contents(env('RSA_PRIVATE_KEY'))
         );
         return $decrypted;
     }

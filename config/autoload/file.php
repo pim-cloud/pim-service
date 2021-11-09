@@ -72,10 +72,10 @@ return [
         ],
         'qiniu' => [
             'driver' => \Hyperf\Filesystem\Adapter\QiniuAdapterFactory::class,
-            'accessKey' => env('QINIU_ACCESS_KEY','bFzOJGUL596cNQglWV5Lgzu7M3avi35QxeNpV8Mm'),
-            'secretKey' => env('QINIU_SECRET_KEY','j48p_5vYxnSu8uaScEKg_V_bCQUKVjew_J6SVn2P'),
-            'bucket' => env('QINIU_BUCKET','jksusu'),
-            'domain' => env('QINBIU_DOMAIN','http://cdn.jksusu.cn/'),
+            'accessKey' => env('QINIU_ACCESS_KEY'),
+            'secretKey' => env('QINIU_SECRET_KEY'),
+            'bucket' => env('QINIU_BUCKET'),
+            'domain' => env('QINBIU_DOMAIN'),
         ],
         'cos' => [
             'driver' => \Hyperf\Filesystem\Adapter\CosAdapterFactory::class,
