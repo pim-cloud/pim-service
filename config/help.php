@@ -96,3 +96,14 @@ if (!function_exists('picturePath')) {
     }
 }
 
+/**
+ * 获取邮箱实例
+ */
+if (!function_exists('smail')) {
+    function smail()
+    {
+        $container = \Hyperf\Utils\ApplicationContext::getContainer();
+        return $container->get(\App\Support\Mail\Mail::class);
+    }
+}
+
