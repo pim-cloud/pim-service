@@ -1,5 +1,12 @@
 <?php
 
+if (!function_exists('container')) {
+    function container()
+    {
+        return \Hyperf\Utils\ApplicationContext::getContainer();
+    }
+}
+
 /**
  * 获取当前系统唯一标识
  */
@@ -16,8 +23,7 @@ if (!function_exists('getLocalUnique')) {
 if (!function_exists('getSnowflakeId')) {
     function getSnowflakeId(): string
     {
-        $container = \Hyperf\Utils\ApplicationContext::getContainer();
-        $generator = $container->get(\Hyperf\Snowflake\IdGeneratorInterface::class);
+        $generator = container()->get(\Hyperf\Snowflake\IdGeneratorInterface::class);
         return $generator->generate();
     }
 }
@@ -69,7 +75,7 @@ if (!function_exists('decrypt')) {
 if (!function_exists('redis')) {
     function redis()
     {
-        return \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
+        return container()->get(\Hyperf\Redis\Redis::class);
     }
 }
 
@@ -102,8 +108,7 @@ if (!function_exists('picturePath')) {
 if (!function_exists('smail')) {
     function smail()
     {
-        $container = \Hyperf\Utils\ApplicationContext::getContainer();
-        return $container->get(\App\Support\Mail\Mail::class);
+        return container()->get(\App\Support\Mail\Mail::class);
     }
 }
 
