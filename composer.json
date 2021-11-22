@@ -13,7 +13,7 @@
     "license": "Apache-2.0",
     "require": {
         "php": ">=7.3",
-        "96qbhy/hyperf-auth": "^2.6.1",
+        "96qbhy/hyperf-auth": "^2.6.3",
         "hyperf/cache": "2.2.*",
         "hyperf/circuit-breaker": "2.2.*",
         "hyperf/command": "2.2.*",

@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Redis\OnLine;
 use Swoole\Http\Request;
+use Swoole\Http\Response;
 use Swoole\Websocket\Frame;
 use Hyperf\Di\Annotation\Inject;
 use Qbhy\HyperfAuth\AuthManager;
@@ -42,7 +43,7 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
 
     public function onOpen($server, Request $request): void
     {
-        if (is_null($request->server['query_string'])) {
+        if (!isset($request->server['query_string']) || is_null($request->server['query_string'])) {
             $server->close($request->fd);
         }
         $member = $this->auth->getPayload($request->server['query_string']);
