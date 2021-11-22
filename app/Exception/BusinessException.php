@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Exception;
 
 use Throwable;
-use Hyperf\Server\Exception\ServerException;
 
 /**
  * 联系人模块异常
