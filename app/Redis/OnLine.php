@@ -31,6 +31,9 @@ class OnLine extends Hash
     public function getUidByFd(string $channel, $fd)
     {
         $uid = $this->get($this->key, $channel . $fd);
+        if (empty($uid)) {
+            return '';
+        }
         return substr($uid, 4);
     }
 
