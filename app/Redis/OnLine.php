@@ -22,6 +22,20 @@ class OnLine extends Hash
         return $this->set($this->key, $channel . $hashKey, $channel . $value);
     }
 
+
+    /**
+     * 设置web在线关系映射
+     * @param  $a
+     * @param  $b
+     * @return bool
+     */
+    public function setWebOnLine($a, $b)
+    {
+        $this->set($this->key, 'web:' . $a, 'web:' . $b);
+        return $this->set($this->key, 'web:' . $b, 'web:' . $a);
+    }
+
+
     /**
      * 根据fd获取uid
      * @param string $channel

@@ -14,4 +14,7 @@ return [
         Hyperf\Validation\Middleware\ValidationMiddleware::class,
         \App\Middleware\CorsMiddleware::class,
     ],
+    'ws' => [
+        \App\Middleware\Auth\AuthMiddlewares::class
+    ]
 ];
