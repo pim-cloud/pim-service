@@ -60,6 +60,9 @@ if (!function_exists('ack')) {
 if (!function_exists('decrypt')) {
     function decrypt($ciphertext)
     {
+        if (!file_exists(env('RSA_PRIVATE_KEY'))) {
+            throw new \App\Exception\BusinessException(env('RSA_PRIVATE_KEY') . '私钥不存在');
+        }
         openssl_private_decrypt(
             base64_decode($ciphertext),
             $decrypted,
@@ -108,7 +111,7 @@ if (!function_exists('picturePath')) {
 if (!function_exists('smail')) {
     function smail()
     {
-        return container()->get(\App\Support\Mail\Mail::class);
+        return container()->get(\App\Support\Mail\Email::class);
     }
 }
 
