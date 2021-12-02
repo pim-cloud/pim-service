@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Exception\BusinessException;
 use App\Model\Member;
+use App\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
 use Qbhy\HyperfAuth\AuthManager;
 use App\Exception\ValidateException;
@@ -44,14 +46,14 @@ class LoginController extends AbstractController
 
         $decryptedData = json_decode(decrypt($params['ciphertext']), true);
 
-        $validator = $this->validationFactory->make($decryptedData, ['username' => 'required', 'password' => 'required', 'scene' => 'required',]);
+        $validator = $this->validationFactory->make($decryptedData, ['email' => 'required', 'password' => 'required', 'scene' => 'required',]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
 
         $member = Member::query()
-            ->select(['uid', 'salt', 'username', 'head_image', 'nickname', 'autograph', 'password'])
-            ->where('username', $decryptedData['username'])
+            ->select(['uid', 'salt', 'email','username', 'head_image', 'nickname', 'autograph', 'password'])
+            ->where('email', $decryptedData['email'])
             ->first();
         if ($member && $member->password === md5($decryptedData['password'] . $member->salt)) {
             return $this->apiReturn([
@@ -71,23 +73,29 @@ class LoginController extends AbstractController
         if (!isset($params['ciphertext']) || empty($params['ciphertext'])) {
             throw new ValidateException('ciphertext error');
         }
+
         $decryptedData = json_decode(decrypt($params['ciphertext']), true);
-        $validator = $this->validationFactory->make($decryptedData, ['username' => 'required', 'nickname' => 'required', 'password' => 'required',]);
+        $validator = $this->validationFactory->make($decryptedData, ['email' => 'required', 'code' => 'required', 'password' => 'required',]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
+        $res = redis()->get('verification:code:register:' . $decryptedData['code']);
+        if (!$res) {
+            return $this->apiReturn(['code' => 202, 'msg' => '验证码错误']);
+        }
 
-        $data = Member::where('username', $decryptedData['username'])->first();
+        $data = Member::where('email', $decryptedData['email'])->first();
         if ($data <> null) {
-            return $this->apiReturn(['code' => 0, 'msg' => '账号已存在']);
+            return $this->apiReturn(['code' => 0, 'msg' => '邮箱已被注册']);
         }
 
         $salt = uniqid();
 
         $data = Member::create([
             'uid' => getSnowflakeId(),
-            'username' => $decryptedData['username'],
-            'nickname' => $decryptedData['nickname'],
+            'username' => '',
+            'email' => $decryptedData['email'],
+            'nickname' => uniqid(),
             'head_image' => 'morentouxiang.png',
             'password' => md5($decryptedData['password'] . $salt),
             'salt' => $salt,
@@ -97,6 +105,41 @@ class LoginController extends AbstractController
         }
         return ['code' => 0, 'msg' => '注册失败'];
     }
+
+
+    /**
+     * 获取验证码
+     * @GetMapping(path="code")
+     */
+    public function code()
+    {
+        $params = $this->request->all();
+        if (!isset($params['email']) || empty($params['email'])) {
+            throw new ValidateException('email error');
+        }
+        if (!isset($params['type']) || empty($params['type'])) {
+            throw new ValidateException('type error');
+        }
+
+        $prefix = '';
+        switch ($params['type']) {
+            case 'register_code_':
+                $prefix = 'verification:code:register:';
+                break;
+        }
+
+        $code = generateCode();
+
+        redis()->set($prefix . $code, $code, '120');
+
+        asyncQueue()->sendCheckCode([
+            'email' => $params['email'],
+            'body' => '您正在注册pim系统，您的验证码是: ' . $code . ' 验证码2分钟失效',
+        ]);
+
+        return ['code' => 200, 'msg' => '发送成功'];
+    }
+
 
     /**
      * 退出登录

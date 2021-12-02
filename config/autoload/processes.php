@@ -12,4 +12,5 @@ declare(strict_types=1);
 return [
     \App\Process\Message::class,
     \App\Process\Clear::class,
+    Hyperf\AsyncQueue\Process\ConsumerProcess::class,
 ];

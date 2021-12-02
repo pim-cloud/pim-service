@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Support\Mail\Email;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 
@@ -15,7 +16,6 @@ class IndexController extends AbstractController
      */
     public function index()
     {
-
+        Email::send('jksusuppx@qq.com');
     }
-
 }

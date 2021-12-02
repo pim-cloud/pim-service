@@ -9,20 +9,21 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class Email
 {
-    public static function send(string $email, $conf = 'default')
+    public static function send(string $email, string $body, string $subject = '验证码', $conf = 'default')
     {
         try {
             if (!isset(config('smtp')[$conf])) {
                 throw new \Exception('smtp config empty' . $conf);
             }
             $config = config('smtp')[$conf];
+
             $mail = new PHPMailer();
 
             //邮箱服务配置
             $mail->SMTPDebug = $config['smtp_debug'];
             $mail->isSMTP();
             $mail->Host = $config['host'];
-            $mail->SMTPAuth = false;
+            $mail->SMTPAuth = true;
             $mail->Username = $config['username'];
             $mail->Password = $config['password'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
@@ -34,9 +35,8 @@ class Email
 
             //Content
             $mail->isHTML(true);
-            $mail->Subject = 'Here is the subject';
-            $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
-            $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+            $mail->Subject = $subject;
+            $mail->Body = $body;
 
             if (!$mail->send()) {
                 throw new MailException('邮件发送失败:' . $email);

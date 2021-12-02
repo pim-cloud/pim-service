@@ -1,31 +1,25 @@
 <?php
 
-if (!function_exists('container')) {
-    function container()
-    {
-        return \Hyperf\Utils\ApplicationContext::getContainer();
-    }
+function container()
+{
+    return \Hyperf\Utils\ApplicationContext::getContainer();
 }
 
 /**
  * 获取当前系统唯一标识
  */
-if (!function_exists('getLocalUnique')) {
-    function getLocalUnique(): string
-    {
-        return substr(md5(implode(',', swoole_get_local_ip())), 0, 10);
-    }
+function getLocalUnique(): string
+{
+    return substr(md5(implode(',', swoole_get_local_ip())), 0, 10);
 }
 
 /**
  * 获取雪花ID
  */
-if (!function_exists('getSnowflakeId')) {
-    function getSnowflakeId(): string
-    {
-        $generator = container()->get(\Hyperf\Snowflake\IdGeneratorInterface::class);
-        return $generator->generate();
-    }
+function getSnowflakeId(): string
+{
+    $generator = container()->get(\Hyperf\Snowflake\IdGeneratorInterface::class);
+    return $generator->generate();
 }
 
 /**
@@ -46,72 +40,71 @@ if (!function_exists('enter')) {
 /**
  * 确认消息
  */
-if (!function_exists('ack')) {
-    function ack(string $msgIds)
-    {
-        return \App\Redis\MessageQueue::getInstance()
-            ->acks('queue:' . getLocalUnique(), 'test', $msgIds);
-    }
+function ack(string $msgIds)
+{
+    return \App\Redis\MessageQueue::getInstance()
+        ->acks('queue:' . getLocalUnique(), 'test', $msgIds);
 }
 
 /**
  * 私钥解密数据
  */
-if (!function_exists('decrypt')) {
-    function decrypt($ciphertext)
-    {
-        if (!file_exists(env('RSA_PRIVATE_KEY'))) {
-            throw new \App\Exception\BusinessException(env('RSA_PRIVATE_KEY') . '私钥不存在');
-        }
-        openssl_private_decrypt(
-            base64_decode($ciphertext),
-            $decrypted,
-            file_get_contents(env('RSA_PRIVATE_KEY'))
-        );
-        return $decrypted;
+function decrypt($ciphertext)
+{
+    if (!file_exists(env('RSA_PRIVATE_KEY'))) {
+        throw new \App\Exception\BusinessException(env('RSA_PRIVATE_KEY') . '私钥不存在');
     }
+    openssl_private_decrypt(
+        base64_decode($ciphertext),
+        $decrypted,
+        file_get_contents(env('RSA_PRIVATE_KEY'))
+    );
+    return $decrypted;
 }
 
 /**
  * 获取redis
  */
-if (!function_exists('redis')) {
-    function redis()
-    {
-        return container()->get(\Hyperf\Redis\Redis::class);
-    }
+function redis()
+{
+    return container()->get(\Hyperf\Redis\Redis::class);
 }
 
 /**
  * 测试环境打印
  */
-if (!function_exists('output')) {
-    function output($str = '')
-    {
-        if (!env('APP_DEBUG', false)) {
-            return '';
-        }
-        var_dump($str) . PHP_EOL;
+function output($str = '')
+{
+    if (!env('APP_DEBUG', false)) {
+        return '';
     }
+    var_dump($str) . PHP_EOL;
 }
 
 /**
  * 获取图片链接
  */
-if (!function_exists('picturePath')) {
-    function picturePath($path = '')
-    {
-        return empty($path) ? '' : config('file.storage.qiniu.domain') . $path;
-    }
+function picturePath($path = '')
+{
+    return empty($path) ? '' : config('file.storage.qiniu.domain') . $path;
+}
+
+
+/**
+ * 获取异步队列
+ */
+function asyncQueue()
+{
+    return container()->get(\App\Service\QueueService::class);
 }
 
 /**
- * 获取邮箱实例
+ * 生成code
+ * @param int $length
+ * @return int
  */
-if (!function_exists('smail')) {
-    function smail()
-    {
-        return container()->get(\App\Support\Mail\Email::class);
-    }
+function generateCode($length = 4)
+{
+    return rand(1000, 9999);
 }
 
