@@ -47,7 +47,7 @@ class ContactsService
     public function searchService(string $acceptType, string $keyword)
     {
         if ($acceptType === 'personal') {
-            $members = Member::whereRaw ("(concat(username,uid,nickname) like '%".$keyword."%')")->get();
+            $members = Member::whereRaw("(concat(username,uid,nickname) like '%" . $keyword . "%')")->get();
             if ($members) {
                 foreach ($members as $key => $val) {
                     if ($val->uid === Context::get('uid')) {
@@ -258,16 +258,16 @@ class ContactsService
     {
         //查询群组
         $groupData = [];
-        $groups = GroupMember::where('uid', Context::get('uid'))->get();
+        $groups = GroupMember::where('group_member.uid', Context::get('uid'))
+            ->leftJoin('group', 'group.group_number', '=', 'group_member.group_number')
+            ->select(['group.group_head_image', 'group.group_name', 'group.group_number'])
+            ->get();
         if ($groups) {
             foreach ($groups as $k => $item) {
-                $group = Group::find($item->group_number);
-                if ($group) {
-                    $groupData[$k]['head_image'] = $group->group_head_image;
-                    $groupData[$k]['nickname'] = $group->group_name;
-                    $groupData[$k]['code'] = $group->group_number;
-                    $groupData[$k]['type'] = 'group';
-                }
+                $groupData[$k]['head_image'] = picturePath($item->group_head_image);
+                $groupData[$k]['nickname'] = $item->group_name;
+                $groupData[$k]['code'] = $item->group_number;
+                $groupData[$k]['type'] = 'group';
             }
         }
 

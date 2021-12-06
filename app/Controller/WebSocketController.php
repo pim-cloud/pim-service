@@ -36,7 +36,7 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
             output('用户掉线*清除fd映射信息fd:web:' . $fd . ' uid:web:' . $uid);
             OnLine::getInstance()->clearOnLineMember('web:' . $fd, 'web:' . $uid);
         } else {
-            output('用户掉线*未查询到fd:web:' . $fd . ' 的信息*清除映射失败');
+            output('getContactGroups*未查询到fd:web:' . $fd . ' 的信息*清除映射失败');
         }
     }
 
@@ -45,6 +45,5 @@ class WebSocketController implements OnMessageInterface, OnOpenInterface, OnClos
         $member = $this->auth->getPayload($request->get['token']);
         OnLine::getInstance()->setWebOnLine($member['uid'], $request->fd);
         output('uid:' . $member['uid'] . '*连接成功*fd:' . $request->fd);
-        $server->push($request->fd, 'Opened');
     }
 }
