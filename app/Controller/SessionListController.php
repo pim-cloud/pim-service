@@ -64,7 +64,7 @@ class SessionListController extends AbstractController
         //是否在列表中存在
         $sessions = SessionList::getInstance()->getSessionAfield(Context::get('uid'), $params['accept_code']);
         if ($sessions) {
-            return $this->apiReturn();
+            return $this->apiReturn(json_decode($sessions,true));
         }
 
         if ($params['session_type'] === 'personal') {
