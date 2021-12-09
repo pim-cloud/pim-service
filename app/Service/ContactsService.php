@@ -224,13 +224,16 @@ class ContactsService
                 if ($members) {
                     $friendData[$k]['head_image'] = picturePath($members->head_image);
                     $friendData[$k]['nickname'] = $members->nickname;
+                    $friendData[$k]['email'] = $members->email;
+                    $friendData[$k]['remarks'] = $item->remarks;
                     $friendData[$k]['uid'] = $item->friend_uid;
                     $friendData[$k]['type'] = 'personal';
                     $friendData[$k]['initials'] = $this->firstChar($members->nickname);
                 }
             }
             foreach ($friendData as $item) {
-                $data[$item['initials']][] = $item;
+                $k = empty($item['initials']) ? '其他' : $item['initials'];
+                $data[$k][] = $item;
             }
             ksort($data, SORT_NATURAL);
         }
@@ -275,18 +278,23 @@ class ContactsService
     }
 
     /**
-     * 删除好友关系
-     * @param string $acceptUid
-     * @return false|int|mixed
+     * 好友编辑
+     * @param array $params
+     * @return bool
      */
-    public function deleteFriends(string $acceptUid)
+    public function editService(array $params)
     {
-        ContactsFriend::where('main_uid', Context::get('uid'))
-            ->where('friend_uid', $acceptUid)
-            ->delete();
-        ContactsFriend::where('main_uid', $acceptUid)
-            ->where('friend_uid', Context::get('uid'))
-            ->delete();
-        return true;
+        switch ($params['type']) {
+            case 'delete':
+                ContactsFriend::doubleDelete($params['mainUid'], $params['friendUid']);
+                break;
+            case 'remarks':
+                $contacts = ContactsFriend::contacts(Context::get('uid'),$params['friendUid']);
+                if ($contacts) {
+                    $contacts->remarks = $params['remarks'];
+                    return $contacts->save();
+                }
+                break;
+        }
     }
 }

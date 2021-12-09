@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Model\ContactsFriend;
 use App\Service\ContactsService;
 use Hyperf\Di\Annotation\Inject;
 use App\Exception\ValidateException;
@@ -12,6 +13,7 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
+use Hyperf\Utils\Context;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
 /**
@@ -132,20 +134,34 @@ class ContactsController extends AbstractController
         return $this->apiReturn((new ContactsService())->getContactGroups());
     }
 
+
     /**
-     * 删除好友
-     * @GetMapping(path="deleteFriends")
+     * 联系人设置
+     * @PostMapping(path="edit")
      */
-    public function deleteFriends()
+    public function edit()
     {
-        $validator = $this->validationFactory->make($this->request->all(),
-            [
-                'accept_uid' => 'required',
-            ]
-        );
+        $params = $this->request->all();
+        $validator = $this->validationFactory->make($params, [
+            'type' => 'required',
+            'friendUid' => 'required',
+        ]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
-        return $this->apiReturn((new ContactsService())->deleteFriends((string)$this->request->query('accept_uid')));
+        return $this->apiReturn((new ContactsService())->editService($params));
+    }
+
+    /**
+     * 获取好友详情
+     * @GetMapping(path="getFriendDetail")
+     */
+    public function getFriendDetail()
+    {
+        $validator = $this->validationFactory->make($this->request->all(), ['uid' => 'required']);
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn(ContactsFriend::friendDetail(Context::get('uid'), $validator->validated()['uid']));
     }
 }

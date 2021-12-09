@@ -64,12 +64,12 @@ class SessionListController extends AbstractController
         //是否在列表中存在
         $sessions = SessionList::getInstance()->getSessionAfield(Context::get('uid'), $params['accept_code']);
         if ($sessions) {
-            return $this->apiReturn(json_decode($sessions,true));
+            return $this->apiReturn(json_decode($sessions, true));
         }
 
         if ($params['session_type'] === 'personal') {
             //判断是否是双向好友
-            $friend = ContactsFriend::twoWayFriend(Context::get('uid'), $params['accept_code']);
+            $friend = ContactsFriend::doubleFriend(Context::get('uid'), $params['accept_code']);
             if (!$friend) {
                 return $this->apiReturn(['code' => 202, 'msg' => '不是双向好友，不可以发信息']);
             }
@@ -115,14 +115,15 @@ class SessionListController extends AbstractController
         $data = [
             'accept_code' => $params['accept_code'],
             'accept_info' => [
+                'remarks' => $params['remarks'],
                 'nickname' => $nickname,
                 'head_image' => picturePath($headImage)
             ],
             'disturb_status' => $session->disturb_status,
             'unread' => 0,
-            'last_message' => isset($message->content) ?$message->content: '',
-            'last_message_type' => isset($message->content_type) ?$message->content_type: '',
-            'last_time' => isset($message->created_at) ?$message->created_at: '',
+            'last_message' => isset($message->content) ? $message->content : '',
+            'last_message_type' => isset($message->content_type) ? $message->content_type : '',
+            'last_time' => isset($message->created_at) ? $message->created_at : '',
             'session_id' => $session->session_id,
             'session_type' => $params['session_type'],
             'topping' => $session->topping,
