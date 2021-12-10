@@ -32,9 +32,17 @@ class GroupController extends AbstractController
      * 创建群组
      * @PostMapping(path="create")
      */
-    public function create(CreateGroup $request)
+    public function create()
     {
-        return $this->apiReturn((new GroupService())->createService($request->validated()));
+        $validator = $this->validationFactory->make($this->request->all(), [
+            'group_member' => 'required',
+            'head_image' => 'required',
+            'nickname' => 'required',
+        ]);
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn((new GroupService())->createService($validator->validated()));
     }
 
     /**
@@ -46,7 +54,7 @@ class GroupController extends AbstractController
         $validator = $this->validationFactory->make($this->request->all(),
             [
                 'group_number' => 'required',
-                'uid' => 'required',
+                'code' => 'required',
                 'type' => 'required',
             ]
         );
@@ -80,16 +88,12 @@ class GroupController extends AbstractController
      */
     public function getGroupDetail()
     {
-        $validator = $this->validationFactory->make($this->request->all(),
-            [
-                'group_number' => 'required',
-            ]
-        );
+        $validator = $this->validationFactory->make($this->request->all(), ['code' => 'required',]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
 
-        return $this->apiReturn((new GroupService())->getGroupDetail((string)$validator->validated()['group_number']));
+        return $this->apiReturn((new GroupService())->getGroupDetail((string)$validator->validated()['code']));
     }
 
     /**
@@ -102,12 +106,12 @@ class GroupController extends AbstractController
         $validator = $this->validationFactory->make($params,
             [
                 'group_number' => 'required',
-                'uid' => 'required',
+                'code' => 'required',
             ]
         );
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
-        return $this->apiReturn((new GroupService())->deleteGroupMember((string)$params['group_number'],(string)$params['uid']));
+        return $this->apiReturn((new GroupService())->deleteGroupMember((string)$params['group_number'], (string)$params['code']));
     }
 }

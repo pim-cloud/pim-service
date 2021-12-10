@@ -7,9 +7,9 @@ namespace App\Model;
 /**
  * @property string $msg_id
  * @property string $content
- * @property string $send_uid
+ * @property string $send_code
  * @property string $accept_type
- * @property string $accept_uid
+ * @property string $accept_code
  * @property string $content_type
  * @property string $created_at
  * @property string $updated_at
@@ -37,14 +37,14 @@ class Message extends Model
 
     /**
      * 查询最后一条消息
-     * @param string $sendUid
-     * @param string $acceptUid
+     * @param string $sendCode
+     * @param string $acceptCode
      * @return \Hyperf\Database\Model\Builder|\Hyperf\Database\Model\Model|object|null
      */
-    public static function lastMsg(string $sendUid, string $acceptUid)
+    public static function lastMsg(string $sendCode, string $acceptCode)
     {
-        return self::where('send_uid', $sendUid)
-            ->where('accept_uid', $acceptUid)
+        return Message::where('send_code', $sendCode)
+            ->where('accept_code', $acceptCode)
             ->orderBy('created_at', 'desc')
             ->first();
     }

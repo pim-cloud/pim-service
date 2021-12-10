@@ -30,10 +30,10 @@ class AuthMiddlewares extends AuthManager implements MiddlewareInterface
             throw new AuthException('token 已过期');
         }
         //获取当前渠道token是否一致
-        $webToken = redis()->hGet('u:token:' . $member['uid'], 'web');
+        /*$webToken = redis()->hGet('u:token:' . $member['uid'], 'web');
         if ($webToken != $token) {
             throw new AuthException('当前token不能用在web端登录');
-        }
+        }*/
         return $handler->handle($request);
     }
 }

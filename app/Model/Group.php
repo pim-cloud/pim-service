@@ -4,9 +4,9 @@ declare (strict_types=1);
 namespace App\Model;
 
 /**
- * @property string $group_number 
- * @property string $group_name 
- * @property string $group_head_image 
+ * @property string $code
+ * @property string $nickname
+ * @property string $head_image
  * @property string $introduction 
  * @property int $member_num 
  * @property string $extra 
@@ -22,14 +22,9 @@ class Group extends Model
      */
     protected $table = 'group';
 
-    protected $primaryKey = 'group_number';
+    protected $primaryKey = 'code';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [];
+    protected $guarded  = [];
     /**
      * The attributes that should be cast to native types.
      *

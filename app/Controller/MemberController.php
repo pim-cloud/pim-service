@@ -35,11 +35,11 @@ class MemberController extends AbstractController
      */
     public function getMemberInfo()
     {
-        $uid = $this->request->query('uid');
-        if (empty($uid)) {
-            $uid = Context::get('uid');
+        $code = $this->request->query('code');
+        if (empty($code)) {
+            $code = Context::get('code');
         }
-        $member = Member::findFromCache($uid);
+        $member = Member::findFromCache($code);
         if (!empty($member)) {
             $member->head_image = picturePath($member->head_image);
         }
@@ -61,7 +61,7 @@ class MemberController extends AbstractController
         }
         $data = $validator->validated();
 
-        $saveP = Member::saveP(Context::get('uid'), $data['oldpwd'], $data['newpwd']);
+        $saveP = Member::saveP(Context::get('code'), $data['oldpwd'], $data['newpwd']);
 
         if ($saveP) return $this->apiReturn();
 
@@ -81,7 +81,7 @@ class MemberController extends AbstractController
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
-        $member = Member::findFromCache(Context::get('uid'));
+        $member = Member::findFromCache(Context::get('code'));
         if (!$member) return $this->apiReturn(['code' => 202, 'msg' => '没查询到用户信息']);
 
         $member->autograph = $params['autograph'];
@@ -101,7 +101,7 @@ class MemberController extends AbstractController
         $fileService = new FileService();
         $filename = $fileService->picture($file);
 
-        $member = Member::findFromCache(Context::get('uid'));
+        $member = Member::findFromCache(Context::get('code'));
         if (!$member) return $this->apiReturn(['code' => 202, 'msg' => '没查询到用户信息']);
 
         $member->head_image = $filename;

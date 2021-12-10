@@ -27,13 +27,13 @@ class SessionList extends Hash
 
     /**
      * 获取某个字段的值
-     * @param string $uid
+     * @param string $code
      * @param  $field
      * @return false|string
      */
-    public function getSessionAfield(string $uid, $field)
+    public function getSessionAfield(string $code, $field)
     {
-        return $this->get($this->getKey($uid), $field);
+        return $this->get($this->getKey($code), $field);
     }
 
     public function addSessionLists()

@@ -7,8 +7,8 @@ namespace App\Model;
 /**
  * @property int $session_id
  * @property string $session_type
- * @property string $uid
- * @property string $accept_uid
+ * @property string $main_code
+ * @property string $accept_code
  * @property string $disturb_status
  * @property string $on_line_status
  * @property int $unread
@@ -38,8 +38,8 @@ class MessageSessionList extends Model
      */
     protected $fillable = [
         'session_type',
-        'uid',
-        'accept_uid',
+        'main_code',
+        'accept_code',
         'disturb_status',
         'on_line_status',
         'unread',
@@ -59,14 +59,14 @@ class MessageSessionList extends Model
 
     /**
      * 设置消息免打扰
-     * @param string $uid 我的uid
-     * @param string $acceptUid 接收者uid
+     * @param string $mainCode 我的uid
+     * @param string $acceptCode 接收者uid
      * @return bool
      */
-    public static function saveDisturbStatus(string $uid, string $acceptUid)
+    public static function saveDisturbStatus(string $mainCode, string $acceptCode)
     {
-        $list = self::query()->where('uid', $uid)
-            ->where('accept_uid', $acceptUid)
+        $list = self::query()->where('uid', $mainCode)
+            ->where('accept_code', $acceptCode)
             ->first(['session_id', 'disturb_status']);
         if ($list->disturb_status === 'yes') {
             $list->disturb_status = 'no';
@@ -78,22 +78,22 @@ class MessageSessionList extends Model
 
     /**
      * 获取会话列表
-     * @param string $uid
+     * @param string $mainCode
      * @return array
      */
-    public static function sessionList(string $uid): array
+    public static function sessionList(string $mainCode): array
     {
-        $session = MessageSessionList::where('uid', $uid)->get();
+        $session = MessageSessionList::where('uid', $mainCode)->get();
 
         $data = [];
         if ($session) {
             foreach ($session as $item) {
                 if ($item->session_type === 'group') {
-                    $group = Group::findFromCache($item->accept_uid);
-                    $nickname = $group->group_name;
-                    $headImage = picturePath($group->group_head_image);
+                    $group = Group::findFromCache($item->accept_code);
+                    $nickname = $group->nickname;
+                    $headImage = picturePath($group->head_image);
                 } else {
-                    $member = Member::findFromCache($item->accept_uid);
+                    $member = Member::findFromCache($item->accept_code);
                     $nickname = $member->nickname;
                     $headImage = picturePath($member->head_image);
                 }

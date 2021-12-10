@@ -6,8 +6,8 @@ namespace App\Model;
 
 /**
  * @property int $id
- * @property string $group_number
- * @property string $uid
+ * @property string $code
+ * @property string $m_code
  * @property string $type
  * @property string $extra
  * @property \Carbon\Carbon $created_at
@@ -26,7 +26,7 @@ class GroupMember extends Model
      *
      * @var array
      */
-    protected $fillable = ['group_number', 'uid', 'type', 'extra'];
+    protected $fillable = ['code', 'm_code', 'type', 'extra'];
     /**
      * The attributes that should be cast to native types.
      *

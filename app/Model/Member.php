@@ -10,7 +10,7 @@ use Hyperf\Snowflake\Concern\Snowflake;
 use Hyperf\ModelCache\CacheableInterface;
 
 /**
- * @property string $uid
+ * @property string $code
  * @property string $username
  * @property string $email
  * @property string $password
@@ -35,7 +35,7 @@ class Member extends Model implements CacheableInterface, Authenticatable
      */
     protected $table = 'member';
 
-    protected $primaryKey = 'uid';
+    protected $primaryKey = 'code';
 
     /**
      * The attributes that are mass assignable.
@@ -43,7 +43,7 @@ class Member extends Model implements CacheableInterface, Authenticatable
      * @var array
      */
     protected $fillable = [
-        'uid',
+        'code',
         'username',
         'email',
         'password',
@@ -62,7 +62,7 @@ class Member extends Model implements CacheableInterface, Authenticatable
     public function getId()
     {
         // TODO: Implement getId() method.
-        return $this->uid;
+        return $this->code;
     }
 
     public static function retrieveById($key): ?Authenticatable
@@ -73,14 +73,14 @@ class Member extends Model implements CacheableInterface, Authenticatable
 
     /**
      * 修改密码
-     * @param $uid
+     * @param $code
      * @param $oldP
      * @param $newP
      * @return bool
      */
-    public static function saveP($uid, $oldP, $newP): bool
+    public static function saveP($code, $oldP, $newP): bool
     {
-        $member = Member::findFromCache($uid);
+        $member = Member::findFromCache($code);
 
         if ($member->password != md5($oldP . $member->salt)) return false;
 

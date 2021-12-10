@@ -24,7 +24,7 @@ class CreateGroup extends FormRequest
         return [
             'group_name' => 'required',
             'group_member' => 'required',
-            'group_head_image' => 'required',
+            'head_image' => 'required',
         ];
     }
 }

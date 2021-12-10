@@ -9,47 +9,123 @@ services:
     tty: true
     ports:
       - 3306:3306
+    volumes:
+      - type: volume
+        source: pim-mysql
+        target: /var/lib/docker/volumes/pim-mysql/_data
+        volume:
+          nocopy: true
     environment:
-      MYSQL_DATABASE: im
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 1234
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: pim
+      MYSQL_USER: pim
+      MYSQL_PASSWORD: 6Phg7LeD
+      MYSQL_ROOT_PASSWORD: 6Phg7LeD
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
       - pim
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
   pim-redis:
     image: redis:6.0.6
     container_name: pim-redis
+    volumes:
+      - type: volume
+        source: pim-redis
+        target: /var/lib/docker/volumes/pim-redis/_data
+        volume:
+          nocopy: true
     ports:
       - 6379:6379
     networks:
       - pim
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
   pim-service:
-    image: jksusu/pim-service:0.01
+    image: jksusu/pim-service:0.03
     container_name: pim-service
     privileged: true
+    depends_on:
+      - pim-mysql
+      - pim-redis
+    volumes:
+      - type: volume
+        source: pim-service
+        target: /var/lib/docker/volumes/pim-service/_data
+        volume:
+          nocopy: true
     ports:
       - 9501:9501
       - 9502:9502
       - 9503:9503
     networks:
       - pim
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
   pim-web:
-    image: jksusu/pim-web:0.01
+    image: jksusu/pim-web:0.03
     container_name: pim-web
     privileged: true
+    depends_on:
+      - pim-service
+    volumes:
+      - /mnt/config/ssl:/mnt/config/ssl
     ports:
       - 80:80
+      - 443:443
     restart: always
     networks:
       - pim
-  pim-nginx:
-    image: nginx:latest
-    container_name: pim-nginx
-    ports:
-      - 83:80
-    volumes:
-      - ./:/etc/nginx/conf.d
-    networks:
-      - pim
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+volumes:
+  pim-service:
+    driver: local
+  pim-mysql:
+    driver: local
+  pim-redis:
+    driver: local

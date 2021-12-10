@@ -29,12 +29,12 @@ class MessageService
         $request['content'] = htmlspecialchars_decode($request['content']);
         //查询发送人信息
         if ($request['accept_type'] === 'group') {
-            $groups = Group::findFromCache($request['accept_uid']);
-            $request['head_image'] = picturePath($groups->group_head_image);
-            $request['nickname'] = $groups->group_name;
+            $groups = Group::findFromCache($request['accept_code']);
+            $request['head_image'] = picturePath($groups->head_image);
+            $request['nickname'] = $groups->nickname;
         }
 
-        $members = Member::findFromCache($request['send_uid']);
+        $members = Member::findFromCache($request['send_code']);
 
         $request['send_head_image'] = $members->head_image;
         $request['send_nickname'] = $members->nickname;
@@ -52,27 +52,27 @@ class MessageService
         try {
             $message->msg_id = $id;
             $message->content = $request['content'];
-            $message->send_uid = $request['send_uid'];
+            $message->send_code = $request['send_code'];
             $message->accept_type = $request['accept_type'];
-            $message->accept_uid = $request['accept_uid'];
+            $message->accept_code = $request['accept_code'];
             $message->content_type = $request['content_type'];
             $message->save();
 
             //如果是群组，给每个群成员维护一个消息列表
             if ($request['accept_type'] === 'group') {
                 //查询当前群组成员
-                $groupNumber = $request['accept_uid'];
+                $groupNumber = $request['accept_code'];
                 $group = GroupMember::where('group_number', $groupNumber)->get();
                 foreach ($group as $item) {
-                    $messageIndex->send_uid = $request['send_uid'];
-                    $messageIndex->accept_uid = $item->uid;
+                    $messageIndex->send_code = $request['send_code'];
+                    $messageIndex->accept_code = $item->code;
                     $messageIndex->msg_id = $id;
                     $messageIndex->read_state = 'unread';
                     $messageIndex->save();
                 }
             } else {
-                $messageIndex->send_uid = Context::get('uid');
-                $messageIndex->accept_uid = $request['accept_uid'];
+                $messageIndex->send_code = Context::get('code');
+                $messageIndex->accept_code = $request['accept_code'];
                 $messageIndex->msg_id = $id;
                 $messageIndex->read_state = 'unread';
                 $messageIndex->save();
@@ -116,8 +116,8 @@ class MessageService
      */
     public function getMsgRecordService(array $request)
     {
-        $where[] = ['send_uid', Context::get('uid')];
-        $where[] = ['accept_uid', $request['accept_code']];
+        $where[] = ['send_code', Context::get('code')];
+        $where[] = ['accept_code', $request['accept_code']];
 
         //如果本地存在最后一条聊天记录id
         /*if (isset($request['last_msg_id']) && !empty($request['last_msg_id'])) {
@@ -128,8 +128,8 @@ class MessageService
 
         $listModel = MessageIndex::query()->with('messageOne')
             ->where($where)->orWhere([
-                ['send_uid', $request['accept_code']],
-                ['accept_uid', Context::get('uid')]
+                ['send_code', $request['accept_code']],
+                ['accept_code', Context::get('code')]
             ]);
 
         $count = $listModel->count();//总条数
@@ -145,19 +145,19 @@ class MessageService
                 unset($item->updated_at);
             }
 
-            $send = Member::find(Context::get('uid'));
+            $send = Member::find(Context::get('code'));
 
             if ($request['session_type'] === 'group') {
                 $group = Group::findFromCache($request['accept_code']);
                 $accept = [
-                    'uid' => $group->group_number,
-                    'nickname' => $group->group_name,
-                    'head_image' => picturePath($group->group_head_image),
+                    'code' => $group->code,
+                    'nickname' => $group->nickname,
+                    'head_image' => picturePath($group->head_image),
                 ];
             } else {
                 $member = Member::findFromCache($request['accept_code']);
                 $accept = [
-                    'uid' => $member->uid,
+                    'code' => $member->code,
                     'nickname' => $member->nickname,
                     'head_image' => picturePath($member->head_image),
                 ];
@@ -165,7 +165,7 @@ class MessageService
 
             $data['count'] = $count;
             $data['send'] = [
-                'uid' => $send->uid,
+                'code' => $send->code,
                 'nickname' => $send->nickname,
                 'head_image' => picturePath($send->head_image),
             ];

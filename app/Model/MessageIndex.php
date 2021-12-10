@@ -4,8 +4,8 @@ declare (strict_types=1);
 namespace App\Model;
 
 /**
- * @property string $send_uid 
- * @property string $accept_uid 
+ * @property string $send_code
+ * @property string $accept_code
  * @property int $msg_id
  * @property string $read_state 
  * @property string $created_at

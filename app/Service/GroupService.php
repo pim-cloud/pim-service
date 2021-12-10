@@ -19,52 +19,41 @@ class GroupService
      */
     public function createService(array $params)
     {
-        //实现一个分布式锁，防止群号重复
-        //$redis = $this->container->get(\Hyperf\Redis\Redis::class);
-
-        $groupNumber = time();
-
-        $groupModel = new Group();
-        $groupMemberModel = new GroupMember();
+        $code = time();
 
         Db::beginTransaction();
         try {
-
-            //创建群组
-            $groupModel->group_number = $groupNumber;
-            $groupModel->group_name = $params['group_name'];
-            $groupModel->group_head_image = $params['group_head_image'];
-            $groupModel->introduction = '这是一个有趣的群';
-            $groupModel->save();
-
+            Group::create([
+                'code' => $code,
+                'nickname' => $params['nickname'],
+                'head_image' => $params['head_image'],
+                'introduction' => isset($params['introduction']) && !empty($params['introduction']) ? $params['introduction'] : '这是一个有趣的群',
+            ]);
             //添加群主
             GroupMember::create([
-                'group_number' => $groupNumber,
-                'uid' => Context::get('uid'),
+                'code' => $code,
+                'm_code' => Context::get('code'),
                 'type' => 'leader',
             ]);
-
             foreach ($params['group_member'] as $k => $v) {
                 GroupMember::create([
-                    'group_number' => $groupNumber,
-                    'uid' => $v,
+                    'code' => $code,
+                    'm_code' => $v,
                     'type' => 'member',
                 ]);
             }
-
             Db::commit();
-
             //推送创建群聊消息
             enter([
-                'send_uid' => Context::get('uid'),
-                'accept_uid' => $groupNumber,
+                'send_code' => Context::get('code'),
+                'accept_code' => $code,
                 'message_type' => 'create_group',
-                'head_image' => $params['group_head_image'],
-                'nickname' => $params['group_name'],
+                'head_image' => $params['head_image'],
+                'nickname' => $params['nickname'],
             ]);
 
 
-            return ['code' => 200, 'msg' => '创建成功', 'data' => ['groupNumber' => $groupNumber]];
+            return ['code' => 200, 'msg' => '创建成功', 'data' => ['code' => $code]];
         } catch (\Throwable $ex) {
             Db::rollBack();
             throw new BusinessException('创建群组失败' . $ex->getMessage());
@@ -82,7 +71,7 @@ class GroupService
         //删除群成员
         if ($params['type'] === 'delete') {
             // 删除群成员表数据，删除群成员操作记录数据
-            $groupMember = GroupMember::where(['group_number' => $params['group_number'], 'uid' => $params['uid']])->first();
+            $groupMember = GroupMember::where(['code' => $params['code'], 'm_code' => $params['code']])->first();
             if ($groupMember) {
                 $groupMember->delete();
             }
@@ -102,13 +91,13 @@ class GroupService
                 Db::beginTransaction();
                 try {
                     //修改新群主角色
-                    $groupMembers = GroupMember::where(['group_number' => $params['group_number'], 'uid' => $params['uid']])->first();
+                    $groupMembers = GroupMember::where(['code' => $params['code'], 'm_code' => $params['m_code']])->first();
                     if ($groupMembers) {
                         $groupMembers->type = 'leader';
                         $groupMembers->save();
                     }
                     //修改原群主角色
-                    $leader = GroupMember::where(['group_number' => $params['group_number'], 'uid' => Context::get('uid')])->first();
+                    $leader = GroupMember::where(['code' => $params['code'], 'm_code' => Context::get('code')])->first();
                     if ($leader) {
                         $groupMembers->type = 'member';
                         $groupMembers->save();
@@ -122,7 +111,7 @@ class GroupService
             }
             //将成员变成群管
             if ($params['role'] === 'admin') {
-                $groupMembers = GroupMember::where(['group_number' => $params['group_number'], 'uid' => $params['uid']])->first();
+                $groupMembers = GroupMember::where(['code' => $params['code'], 'm_code' => $params['code']])->first();
                 if ($groupMembers) {
                     $groupMembers->type = 'admin';
                     $groupMembers->save();
@@ -164,24 +153,24 @@ class GroupService
 
     /**
      * 获取群组详情
-     * @param string $groupNumber
+     * @param string $code
      * @return array
      */
-    public function getGroupDetail(string $groupNumber)
+    public function getGroupDetail(string $code)
     {
-        $group = Group::find($groupNumber);
+        $group = Group::find($code);
 
         $data = [];
         if ($group) {
 
             //查询群组成员
             $member = [];
-            $groupMembers = GroupMember::where('group_number', $groupNumber)->get();
+            $groupMembers = GroupMember::where('code', $code)->get();
             foreach ($groupMembers as $item) {
-                $members = Member::find($item->uid);
+                $members = Member::find($item->m_code);
                 if ($members) {
                     $member[] = [
-                        'uid' => $members->uid,
+                        'code' => $members->code,
                         'username' => $members->username,
                         'email' => $members->email,
                         'head_image' => picturePath($members->head_image),
@@ -204,12 +193,12 @@ class GroupService
 
     /**
      * 移除群
-     * @param string $groupNumber
-     * @param string $uid
+     * @param string $code
+     * @param string $m_code
      * @return false|int|mixed
      */
-    public function deleteGroupMember(string $groupNumber, string $uid)
+    public function deleteGroupMember(string $code, string $m_code)
     {
-        return GroupMember::where('group_number', $groupNumber)->where('uid', $uid)->delete();
+        return GroupMember::where('code', $code)->where('m_code', $m_code)->delete();
     }
 }

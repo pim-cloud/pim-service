@@ -47,10 +47,10 @@ class ContactsService
     public function searchService(string $acceptType, string $keyword)
     {
         if ($acceptType === 'personal') {
-            $members = Member::whereRaw("(concat(username,uid,nickname) like '%" . $keyword . "%')")->get();
+            $members = Member::whereRaw("(concat(username,code,nickname) like '%" . $keyword . "%')")->get();
             if ($members) {
                 foreach ($members as $key => $val) {
-                    if ($val->uid === Context::get('uid')) {
+                    if ($val->code === Context::get('code')) {
                         unset($members[$key]);
                     }
                     $val->head_image = picturePath($val->head_image);
@@ -72,18 +72,18 @@ class ContactsService
      */
     public function sendAddFriendRequest($data): array
     {
-        if (Context::get('uid') === $data['accept_uid']) {
+        if (Context::get('code') === $data['accept_code']) {
             throw new BusinessException('不能添加自己');
         }
-        $members = Member::where('uid', $data['accept_uid'])->first();
+        $members = Member::where('code', $data['accept_code'])->first();
         if ($members === null) {
             throw new BusinessException('未查询到该用户具体信息');
         }
         //查询是否多次发起请求
         $record = ContactsAddRecord::query()
             ->where([
-                ['send_uid', $data['send_uid']],
-                ['accept_uid', $data['accept_uid']],])->first();
+                ['send_code', $data['send_code']],
+                ['accept_code', $data['accept_code']],])->first();
 
         if ($record && $record->status === 'agree') {
             throw new BusinessException('已经是好友了');
@@ -96,8 +96,8 @@ class ContactsService
         if ($id) {
             $contactsAddRecordModel = new ContactsAddRecord();
             $contactsAddRecordModel->record_id = $id;
-            $contactsAddRecordModel->send_uid = $data['send_uid'];
-            $contactsAddRecordModel->accept_uid = $data['accept_uid'];
+            $contactsAddRecordModel->send_code = $data['send_code'];
+            $contactsAddRecordModel->accept_code = $data['accept_code'];
             $contactsAddRecordModel->remarks = $data['remarks'];
             $contactsAddRecordModel->status = 'pending';
             $contactsAddRecordModel->save();
@@ -112,18 +112,18 @@ class ContactsService
      */
     public function getFriendsRequestList()
     {
-        $record = ContactsAddRecord::where('accept_uid', Context::get('uid'))->get();
+        $record = ContactsAddRecord::where('accept_code', Context::get('code'))->get();
         $data = [];
         if (!$record->isEmpty()) {
             foreach ($record as $item) {
-                $members = Member::find($item->send_uid);
+                $members = Member::find($item->send_code);
                 $data = [
                     [
                         'record_id' => $item->record_id,
-                        'send_uid' => $item->send_uid,
+                        'send_code' => $item->send_code,
                         'send_head_image' => picturePath($members->head_image),
                         'send_nickname' => $members->nickname,
-                        'accept_uid' => $item->accept_uid,
+                        'accept_code' => $item->accept_code,
                         'remarks' => $item->remarks,
                         'status' => $item->status,
                         'created_at' => $item->created_at,
@@ -168,28 +168,28 @@ class ContactsService
             agree:
             $a = ContactsFriend::query()
                 ->where([
-                    ['main_uid', $record->send_uid],
-                    ['friend_uid', $record->accept_uid],
+                    ['main_code', $record->send_code],
+                    ['friend_code', $record->accept_code],
                 ])->first();
             if (!$a) {
                 ContactsFriend::create([
-                    'main_uid' => $record->send_uid,
-                    'friend_uid' => $record->accept_uid,
+                    'main_code' => $record->send_code,
+                    'friend_code' => $record->accept_code,
                 ]);
             }
             $b = ContactsFriend::query()
                 ->where([
-                    ['main_uid', $record->accept_uid],
-                    ['friend_uid', $record->send_uid],
+                    ['main_code', $record->accept_code],
+                    ['friend_code', $record->send_code],
                 ])->first();
             if (!$b) {
                 ContactsFriend::create([
-                    'main_uid' => $record->accept_uid,
-                    'friend_uid' => $record->send_uid,
+                    'main_code' => $record->accept_code,
+                    'friend_code' => $record->send_code,
                 ]);
             }
             //查询发送人基础信息
-            $member = Member::find($params['send_uid']);
+            $member = Member::find($params['send_code']);
             $params['head_image'] = $member->head_image;
             $params['nickname'] = $member->nickname;
 
@@ -214,19 +214,19 @@ class ContactsService
      */
     public function getContactsList()
     {
-        $contactsFriends = ContactsFriend::where('main_uid', Context::get('uid'))->get();
+        $contactsFriends = ContactsFriend::where('main_code', Context::get('code'))->get();
 
         $data = [];
         if (!$contactsFriends->isEmpty()) {
             $friendData = [];
             foreach ($contactsFriends as $k => $item) {
-                $members = Member::findFromCache($item->friend_uid);
+                $members = Member::findFromCache($item->friend_code);
                 if ($members) {
                     $friendData[$k]['head_image'] = picturePath($members->head_image);
                     $friendData[$k]['nickname'] = $members->nickname;
                     $friendData[$k]['email'] = $members->email;
                     $friendData[$k]['remarks'] = $item->remarks;
-                    $friendData[$k]['uid'] = $item->friend_uid;
+                    $friendData[$k]['code'] = $item->friend_code;
                     $friendData[$k]['type'] = 'personal';
                     $friendData[$k]['initials'] = $this->firstChar($members->nickname);
                 }
@@ -254,22 +254,23 @@ class ContactsService
 
 
     /**
-     * 查询我拥有的群组和好友
+     * 查询我拥有的群组
      * @return array
      */
     public function getContactGroups()
     {
+        var_dump(Context::get('code'));
         //查询群组
         $groupData = [];
-        $groups = GroupMember::where('group_member.uid', Context::get('uid'))
-            ->leftJoin('group', 'group.group_number', '=', 'group_member.group_number')
-            ->select(['group.group_head_image', 'group.group_name', 'group.group_number'])
+        $groups = GroupMember::where('group_member.m_code', Context::get('code'))
+            ->leftJoin('group', 'group.code', '=', 'group_member.code')
+            ->select(['group.head_image', 'group.nickname', 'group.code'])
             ->get();
         if ($groups) {
             foreach ($groups as $k => $item) {
-                $groupData[$k]['head_image'] = picturePath($item->group_head_image);
-                $groupData[$k]['nickname'] = $item->group_name;
-                $groupData[$k]['code'] = $item->group_number;
+                $groupData[$k]['head_image'] = picturePath($item->head_image);
+                $groupData[$k]['nickname'] = $item->nickname;
+                $groupData[$k]['code'] = $item->code;
                 $groupData[$k]['type'] = 'group';
             }
         }
@@ -285,11 +286,11 @@ class ContactsService
     public function editService(array $params)
     {
         switch ($params['type']) {
-            case 'delete':
-                ContactsFriend::doubleDelete($params['mainUid'], $params['friendUid']);
+            case 'deleteFriend':
+                ContactsFriend::doubleDelete(Context::get('code'), $params['friendCode']);
                 break;
             case 'remarks':
-                $contacts = ContactsFriend::contacts(Context::get('uid'),$params['friendUid']);
+                $contacts = ContactsFriend::contacts(Context::get('code'), $params['friendCode']);
                 if ($contacts) {
                     $contacts->remarks = $params['remarks'];
                     return $contacts->save();

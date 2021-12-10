@@ -40,7 +40,7 @@ class SessionListController extends AbstractController
      */
     public function getSessionList()
     {
-        $list = SessionList::getInstance()->sessionLists(Context::get('uid'));
+        $list = SessionList::getInstance()->sessionLists(Context::get('code'));
         $data = [];
         if (!empty($list)) {
             foreach ($list as $key => $item) {
@@ -62,22 +62,22 @@ class SessionListController extends AbstractController
             throw new ValidateException($validator->errors()->first());
         }
         //是否在列表中存在
-        $sessions = SessionList::getInstance()->getSessionAfield(Context::get('uid'), $params['accept_code']);
+        $sessions = SessionList::getInstance()->getSessionAfield(Context::get('code'), $params['accept_code']);
         if ($sessions) {
             return $this->apiReturn(json_decode($sessions, true));
         }
 
         if ($params['session_type'] === 'personal') {
             //判断是否是双向好友
-            $friend = ContactsFriend::doubleFriend(Context::get('uid'), $params['accept_code']);
+            $friend = ContactsFriend::doubleFriend(Context::get('code'), $params['accept_code']);
             if (!$friend) {
                 return $this->apiReturn(['code' => 202, 'msg' => '不是双向好友，不可以发信息']);
             }
         }
         if ($params['session_type'] === 'group') {
             //判断是否是群成员
-            $member = GroupMember::where('group_number', $params['accept_code'])
-                ->where('uid', Context::get('uid'))->first();
+            $member = GroupMember::where('code', $params['accept_code'])
+                ->where('m_code', Context::get('code'))->first();
             if (!$member) {
                 return $this->apiReturn(['code' => 202, 'msg' => '不是群成员，不可以发信息']);
             }
@@ -85,12 +85,12 @@ class SessionListController extends AbstractController
 
 
         //查询最后消息，时间
-        $message = Message::lastMsg((string)$params['accept_code'], Context::get('uid'));
+        $message = Message::lastMsg(Context::get('code'), (string)$params['accept_code']);
         if ($message) {
             $session = MessageSessionList::create([
                 'session_type' => $params['session_type'],
-                'uid' => Context::get('uid'),
-                'accept_uid' => $params['accept_code'],
+                'main_code' => Context::get('code'),
+                'accept_code' => $params['accept_code'],
                 'last_time' => $message->created_at,
                 'last_message' => $message->content,
                 'last_message_type' => $message->content_type,
@@ -98,14 +98,14 @@ class SessionListController extends AbstractController
         } else {
             $session = MessageSessionList::create([
                 'session_type' => $params['session_type'],
-                'uid' => Context::get('uid'),
-                'accept_uid' => $params['accept_code'],
+                'main_code' => Context::get('code'),
+                'accept_code' => $params['accept_code'],
             ]);
         }
         if ($params['session_type'] === 'group') {
             $accept = Group::findFromCache($params['accept_code']);
-            $nickname = $accept->group_name;
-            $headImage = $accept->group_head_image;
+            $nickname = $accept->nickname;
+            $headImage = $accept->head_image;
         } else {
             $accept = Member::findFromCache($params['accept_code']);
             $nickname = $accept->nickname;
@@ -130,7 +130,7 @@ class SessionListController extends AbstractController
         ];
 
         //添加会话列表
-        SessionList::getInstance()->addSession(Context::get('uid'), $params['accept_code'], $data);
+        SessionList::getInstance()->addSession(Context::get('code'), $params['accept_code'], $data);
 
         return $this->apiReturn($data);
     }
@@ -147,7 +147,7 @@ class SessionListController extends AbstractController
         }
         $session = MessageSessionList::find($validator->validated()['sessionId']);
         if ($session) {
-            SessionList::getInstance()->delSession(Context::get('uid'), $session->accept_uid);
+            SessionList::getInstance()->delSession(Context::get('code'), $session->accept_code);
             $session->delete();
         }
         return $this->apiReturn(['code' => 200, 'msg' => '删除成功']);
@@ -159,11 +159,11 @@ class SessionListController extends AbstractController
      */
     public function setDisturb()
     {
-        $validator = $this->validationFactory->make($this->request->all(), ['acceptUid' => 'required']);
+        $validator = $this->validationFactory->make($this->request->all(), ['acceptCode' => 'required']);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
-        $save = MessageSessionList::saveDisturbStatus(Context::get('uid'), $validator->validated()['acceptUid']);
+        $save = MessageSessionList::saveDisturbStatus(Context::get('code'), $validator->validated()['acceptCode']);
 
         return $this->apiReturn($save);
     }

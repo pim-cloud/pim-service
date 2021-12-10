@@ -28,7 +28,7 @@ class AuthMiddleware extends AuthManager implements MiddlewareInterface
         if (empty($member)) {
             throw new AuthException('user null');
         }
-        Context::set('uid', (string)$member->uid);
+        Context::set('code', (string)$member->code);
         return $handler->handle($request);
     }
 }

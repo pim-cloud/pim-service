@@ -77,7 +77,7 @@ class ContactsController extends AbstractController
     public function sendAddFriendRequest()
     {
         $validator = $this->validationFactory->make($this->request->all(),
-            ['message_type' => 'required', 'send_uid' => 'required', 'accept_uid' => 'required', 'remarks' => 'required']
+            ['message_type' => 'required', 'send_code' => 'required', 'accept_code' => 'required', 'remarks' => 'required']
         );
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
@@ -102,8 +102,8 @@ class ContactsController extends AbstractController
     {
         $validator = $this->validationFactory->make($this->request->all(),
             [
-                'send_uid' => 'required',
-                'accept_uid' => 'required',
+                'send_code' => 'required',
+                'accept_code' => 'required',
                 'message_type' => 'required',
                 'record_id' => 'required',
                 'status' => 'required',
@@ -126,7 +126,7 @@ class ContactsController extends AbstractController
     }
 
     /**
-     * 获取联系人和群组列表
+     * 获取群组列表
      * @GetMapping(path="getContactGroups")
      */
     public function getContactGroups()
@@ -144,7 +144,7 @@ class ContactsController extends AbstractController
         $params = $this->request->all();
         $validator = $this->validationFactory->make($params, [
             'type' => 'required',
-            'friendUid' => 'required',
+            'friendCode' => 'required',
         ]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
@@ -158,10 +158,10 @@ class ContactsController extends AbstractController
      */
     public function getFriendDetail()
     {
-        $validator = $this->validationFactory->make($this->request->all(), ['uid' => 'required']);
+        $validator = $this->validationFactory->make($this->request->all(), ['code' => 'required']);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
-        return $this->apiReturn(ContactsFriend::friendDetail(Context::get('uid'), $validator->validated()['uid']));
+        return $this->apiReturn(ContactsFriend::friendDetail(Context::get('code'), $validator->validated()['code']));
     }
 }

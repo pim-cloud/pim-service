@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Exception\BusinessException;
 use App\Model\Member;
-use App\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
 use Qbhy\HyperfAuth\AuthManager;
 use App\Exception\ValidateException;
@@ -52,9 +50,10 @@ class LoginController extends AbstractController
         }
 
         $member = Member::query()
-            ->select(['uid', 'salt', 'email','username', 'head_image', 'nickname', 'autograph', 'password'])
+            ->select(['code', 'salt', 'email','username', 'head_image', 'nickname', 'autograph', 'password'])
             ->where('email', $decryptedData['email'])
             ->first();
+        var_dump($member);
         if ($member && $member->password === md5($decryptedData['password'] . $member->salt)) {
             return $this->apiReturn([
                 'token' => $this->auth->guard()->login($member, [], $decryptedData['scene'])
@@ -92,7 +91,7 @@ class LoginController extends AbstractController
         $salt = uniqid();
 
         $data = Member::create([
-            'uid' => getSnowflakeId(),
+            'code' => getSnowflakeId(),
             'username' => '',
             'email' => $decryptedData['email'],
             'nickname' => uniqid(),

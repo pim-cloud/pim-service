@@ -9,8 +9,8 @@ use Hyperf\ModelCache\CacheableInterface;
 
 /**
  * @property int $id
- * @property string $main_uid
- * @property string $friend_uid
+ * @property string $main_code
+ * @property string $friend_code
  * @property string $remarks
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -41,64 +41,65 @@ class ContactsFriend extends Model implements CacheableInterface
 
     /**
      * 查询一条联系人
-     * @param string $mainUid
-     * @param string $friendUid
+     * @param string $mainCode
+     * @param string $friendCode
      * @return ContactsFriend
      */
-    public static function contacts(string $mainUid, string $friendUid): ContactsFriend
+    public static function contacts(string $mainCode, string $friendCode): ContactsFriend
     {
-        return ContactsFriend::where('main_uid', $mainUid)->where('friend_uid', $friendUid)->first();
+        return ContactsFriend::where('main_code', $mainCode)->where('friend_code', $friendCode)->first();
     }
 
     /**
      * 是否双向好友，返回好友信息
-     * @param string $mainUid
-     * @param string $friendUid
+     * @param string $mainCode
+     * @param string $friendCode
      * @return bool
      */
-    public static function doubleFriend(string $mainUid, string $friendUid): bool
+    public static function doubleFriend(string $mainCode, string $friendCode): bool
     {
-        $main = ContactsFriend::contacts($mainUid, $friendUid);
-        $friend = ContactsFriend::contacts($friendUid, $mainUid);
+        $main = ContactsFriend::contacts($mainCode, $friendCode);
+        $friend = ContactsFriend::contacts($friendCode, $mainCode);
         return $main && $friend ? true : false;
     }
 
     /**
      * 双向好友删除
-     * @param string $mainUid
-     * @param string $friendUid
+     * @param string $mainCode
+     * @param string $friendCode
      * @return bool
      */
-    public static function doubleDelete(string $mainUid, string $friendUid): bool
+    public static function doubleDelete(string $mainCode, string $friendCode): bool
     {
-        return Db::transaction(function ($mainUid, $friendUid) {
-            Db::table($this->table)->where('main_uid', $mainUid)
-                ->where('friend_uid', $friendUid)
+        return Db::transaction(function ($mainCode, $friendCode) {
+            Db::table($this->table)->where('main_uid', $mainCode)
+                ->where('friend_code', $friendCode)
                 ->delete();
-            Db::table($this->table)->where('main_uid', $friendUid)
-                ->where('friend_uid', $mainUid)
+            Db::table($this->table)->where('main_uid', $friendCode)
+                ->where('friend_code', $mainCode)
                 ->delete();
         });
     }
 
     /**
      * 查询联系人详情
-     * @param string $mainUid
-     * @param string $friendUid
+     * @param string $mainCode
+     * @param string $friendCode
      * @return array
      */
-    public static function friendDetail(string $mainUid, string $friendUid): array
+    public static function friendDetail(string $mainCode, string $friendCode)
     {
-        $contactsInfo = ContactsFriend::contacts($mainUid, $friendUid);
+        $contactsInfo = ContactsFriend::contacts($mainCode, $friendCode);
         if (!$contactsInfo) {
             return [];
         }
-        $member = Member::findFromCache($contactsInfo->friend_uid);
+        $member = Member::findFromCache($contactsInfo->friend_code);
         if (!$member) {
             return [];
         }
         $member->remarks = $contactsInfo->remarks;
         $member->head_image = picturePath($member->head_image);
-        return $member->toArray();
+
+        return $member;
     }
 }

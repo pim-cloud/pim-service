@@ -41,11 +41,11 @@ abstract class AbstractController
     public function apiReturn($codeData = [])
     {
         if (is_array($codeData) && array_key_exists('code', $codeData)) {
-            return $this->response->json($codeData)->withHeader('Content-Type','application/json');
+            return $this->response->json($codeData)->withHeader('Content-Type', 'application/json');
         } else {
             $data['code'] = 200;
             $data['data'] = $codeData;
         }
-        return $this->response->json($data)->withHeader('Content-Type','application/json');
+        return $this->response->json($data)->withHeader('Content-Type', 'application/json');
     }
 }
