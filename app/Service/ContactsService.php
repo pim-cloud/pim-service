@@ -47,7 +47,7 @@ class ContactsService
     public function searchService(string $acceptType, string $keyword)
     {
         if ($acceptType === 'personal') {
-            $members = Member::whereRaw("(concat(username,code,nickname) like '%" . $keyword . "%')")->get();
+            $members = Member::whereRaw("(concat(username,code,nickname,email) like '%" . $keyword . "%')")->get();
             if ($members) {
                 foreach ($members as $key => $val) {
                     if ($val->code === Context::get('code')) {
@@ -163,25 +163,17 @@ class ContactsService
                 default:
                     throw new BusinessException('不支持当前状态');
             }
-
             //同意
             agree:
-            $a = ContactsFriend::query()
-                ->where([
-                    ['main_code', $record->send_code],
-                    ['friend_code', $record->accept_code],
-                ])->first();
+            $a = ContactsFriend::contacts($record->send_code, $record->accept_code);
             if (!$a) {
                 ContactsFriend::create([
+                    'remarks' => '',
                     'main_code' => $record->send_code,
                     'friend_code' => $record->accept_code,
                 ]);
             }
-            $b = ContactsFriend::query()
-                ->where([
-                    ['main_code', $record->accept_code],
-                    ['friend_code', $record->send_code],
-                ])->first();
+            $b = ContactsFriend::contacts($record->accept_code, $record->send_code);
             if (!$b) {
                 ContactsFriend::create([
                     'main_code' => $record->accept_code,
@@ -189,7 +181,7 @@ class ContactsService
                 ]);
             }
             //查询发送人基础信息
-            $member = Member::find($params['send_code']);
+            $member = Member::findFromCache($params['send_code']);
             $params['head_image'] = $member->head_image;
             $params['nickname'] = $member->nickname;
 

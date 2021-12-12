@@ -70,16 +70,13 @@ services:
     depends_on:
       - pim-mysql
       - pim-redis
-    volumes:
-      - type: volume
-        source: pim-service
-        target: /var/lib/docker/volumes/pim-service/_data
-        volume:
-          nocopy: true
     ports:
       - 9501:9501
       - 9502:9502
       - 9503:9503
+    volumes:
+      - /mnt/config:/mnt/config
+      - /mnt/config/.env:/opt/www/.env
     networks:
       - pim
     deploy:
@@ -129,3 +126,8 @@ volumes:
     driver: local
   pim-redis:
     driver: local
+    volumes:
+      - /mnt/config/ssl:/mnt/config/ssl
+    restart: always
+    networks:
+      - pim

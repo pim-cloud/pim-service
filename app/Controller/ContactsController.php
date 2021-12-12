@@ -100,15 +100,13 @@ class ContactsController extends AbstractController
      */
     public function friendRequestProcessing()
     {
-        $validator = $this->validationFactory->make($this->request->all(),
-            [
-                'send_code' => 'required',
-                'accept_code' => 'required',
-                'message_type' => 'required',
-                'record_id' => 'required',
-                'status' => 'required',
-            ]
-        );
+        $validator = $this->validationFactory->make($this->request->all(), [
+            'send_code' => 'required',
+            'accept_code' => 'required',
+            'message_type' => 'required',
+            'record_id' => 'required',
+            'status' => 'required',
+        ]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }

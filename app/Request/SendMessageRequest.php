@@ -23,7 +23,7 @@ class SendMessageRequest extends FormRequest
     {
         return [
             'accept_type' => 'required',//接收者类型
-            'accept_uid' => 'required',//接收人uid
+            'accept_code' => 'required',//接收人uid
             'content' => 'required',//content 内容
             'content_type' => 'required',//消息类型
         ];

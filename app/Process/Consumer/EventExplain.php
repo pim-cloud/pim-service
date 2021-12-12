@@ -48,11 +48,11 @@ class EventExplain
      */
     public function groupRadioBroadcast($data)
     {
-        $members = GroupMember::where('group_number', $data['accept_uid'])->get();
+        $members = GroupMember::where('code', $data['accept_code'])->get();
 
         foreach ($members as $value) {
             //不给发送人推送消息
-            if ($value->uid === $data['send_uid']) {
+            if ($value->uid === $data['send_code']) {
                 continue;
             }
             //获取web端连接标识
@@ -67,9 +67,9 @@ class EventExplain
      */
     public function singleSend($data)
     {
-        $fd = OnLine::getInstance()->getFdByUid('web:', $data['accept_uid']);
+        $fd = OnLine::getInstance()->getFdByUid('web:', $data['accept_code']);
 
-        output('单聊消息推送*发送人*' . $data['send_uid'] . '*接收人*' . $data['accept_uid'] . '*fd*' . $fd);
+        output('单聊消息推送*发送人*' . $data['send_code'] . '*接收人*' . $data['accept_code'] . '*fd*' . $fd);
 
         $this->sender->send($fd, json_encode($data));
     }

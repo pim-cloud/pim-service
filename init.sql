@@ -24,6 +24,21 @@ CREATE TABLE `contacts_friend` (
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
+DROP TABLE IF EXISTS `contacts_friend`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+-- homestead.contacts_friend definition
+
+CREATE TABLE `contacts_friend` (
+                                   `id` int NOT NULL AUTO_INCREMENT,
+                                   `main_uid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '我的uid',
+                                   `remarks` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+                                   `friend_uid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '朋友uid',
+                                   `created_at` datetime NOT NULL COMMENT '创建时间',
+                                   `updated_at` datetime DEFAULT NULL,
+                                   PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- im.contacts_recent definition
 

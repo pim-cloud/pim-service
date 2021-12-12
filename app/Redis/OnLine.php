@@ -42,7 +42,7 @@ class OnLine extends Hash
      * @param  $fd
      * @return string
      */
-    public function getUidByFd(string $channel, $fd)
+    public function getCodeByFd(string $channel, $fd)
     {
         $uid = $this->get($this->key, $channel . $fd);
         if (empty($uid)) {

@@ -43,9 +43,9 @@ class ContactsFriend extends Model implements CacheableInterface
      * 查询一条联系人
      * @param string $mainCode
      * @param string $friendCode
-     * @return ContactsFriend
+     * @return mixed
      */
-    public static function contacts(string $mainCode, string $friendCode): ContactsFriend
+    public static function contacts(string $mainCode, string $friendCode)
     {
         return ContactsFriend::where('main_code', $mainCode)->where('friend_code', $friendCode)->first();
     }
