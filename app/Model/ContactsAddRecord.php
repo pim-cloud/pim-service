@@ -1,16 +1,17 @@
 <?php
 
 declare (strict_types=1);
+
 namespace App\Model;
 
 /**
  * @property string $record_id
- * @property string $send_code
+ * @property string $main_code
  * @property string $accept_code
- * @property string $remarks 
- * @property string $status 
- * @property \Carbon\Carbon $created_at 
- * @property \Carbon\Carbon $updated_at 
+ * @property string $remarks
+ * @property string $status
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
  */
 class ContactsAddRecord extends Model
 {
@@ -35,4 +36,15 @@ class ContactsAddRecord extends Model
      * @var array
      */
     protected $casts = ['created_at' => 'datetime', 'updated_at' => 'datetime'];
+
+    /**
+     * 查询一条申请记录
+     * @param string $mainCode
+     * @param string $acceptCode
+     * @return mixed
+     */
+    public static function record(string $mainCode, string $acceptCode)
+    {
+        return ContactsAddRecord::where('main_code', $mainCode)->where('accept_code', $acceptCode)->first();
+    }
 }

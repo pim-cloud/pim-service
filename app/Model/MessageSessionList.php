@@ -65,7 +65,7 @@ class MessageSessionList extends Model
      */
     public static function saveDisturbStatus(string $mainCode, string $acceptCode)
     {
-        $list = self::query()->where('uid', $mainCode)
+        $list = MessageSessionList::where('main_code', $mainCode)
             ->where('accept_code', $acceptCode)
             ->first(['session_id', 'disturb_status']);
         if ($list->disturb_status === 'yes') {
@@ -131,5 +131,21 @@ class MessageSessionList extends Model
         $topping = $session->topping === 'yes' ? 'no' : 'yes';
         $session->topping = $topping;
         return $session->save();
+    }
+
+    /**
+     * 会话屏蔽消息不提示
+     * @param string $acceptCode
+     * @param string $status
+     * @return bool
+     */
+    public static function disturb(string $acceptCode, string $status): bool
+    {
+        $message = MessageSessionList::where('accept_code', $acceptCode)->first();
+        if ($message) {
+            $message->disturb_status = $status;
+            return (bool)$message->save();
+        }
+        return false;
     }
 }

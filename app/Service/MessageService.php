@@ -116,8 +116,8 @@ class MessageService
      */
     public function getMsgRecordService(array $request)
     {
-        $where[] = ['send_code', Context::get('code')];
-        $where[] = ['accept_code', $request['accept_code']];
+        $where[] = ['main_code', Context::get('code')];
+        $where[] = ['accept_code', $request['acceptCode']];
 
         //如果本地存在最后一条聊天记录id
         /*if (isset($request['last_msg_id']) && !empty($request['last_msg_id'])) {
@@ -128,7 +128,7 @@ class MessageService
 
         $listModel = MessageIndex::query()->with('messageOne')
             ->where($where)->orWhere([
-                ['send_code', $request['accept_code']],
+                ['main_code', $request['acceptCode']],
                 ['accept_code', Context::get('code')]
             ]);
 
@@ -147,15 +147,15 @@ class MessageService
 
             $send = Member::find(Context::get('code'));
 
-            if ($request['session_type'] === 'group') {
-                $group = Group::findFromCache($request['accept_code']);
+            if ($request['sessionType'] === 'group') {
+                $group = Group::findFromCache($request['acceptCode']);
                 $accept = [
                     'code' => $group->code,
                     'nickname' => $group->nickname,
                     'head_image' => picturePath($group->head_image),
                 ];
             } else {
-                $member = Member::findFromCache($request['accept_code']);
+                $member = Member::findFromCache($request['acceptCode']);
                 $accept = [
                     'code' => $member->code,
                     'nickname' => $member->nickname,

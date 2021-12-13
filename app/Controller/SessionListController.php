@@ -57,26 +57,26 @@ class SessionListController extends AbstractController
     public function create()
     {
         $params = $this->request->all();
-        $validator = $this->validationFactory->make($params, ['session_type' => 'required', 'accept_code' => 'required']);
+        $validator = $this->validationFactory->make($params, ['sessionType' => 'required', 'acceptCode' => 'required']);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
         //是否在列表中存在
-        $sessions = SessionList::getInstance()->getSessionAfield(Context::get('code'), $params['accept_code']);
+        $sessions = SessionList::getInstance()->getSessionAfield(Context::get('code'), $params['acceptCode']);
         if ($sessions) {
             return $this->apiReturn(json_decode($sessions, true));
         }
 
-        if ($params['session_type'] === 'personal') {
+        if ($params['sessionType'] === 'personal') {
             //判断是否是双向好友
-            $friend = ContactsFriend::doubleFriend(Context::get('code'), $params['accept_code']);
+            $friend = ContactsFriend::doubleFriend(Context::get('code'), $params['acceptCode']);
             if (!$friend) {
                 return $this->apiReturn(['code' => 202, 'msg' => '不是双向好友，不可以发信息']);
             }
         }
-        if ($params['session_type'] === 'group') {
+        if ($params['sessionType'] === 'group') {
             //判断是否是群成员
-            $member = GroupMember::where('code', $params['accept_code'])
+            $member = GroupMember::where('code', $params['acceptCode'])
                 ->where('m_code', Context::get('code'))->first();
             if (!$member) {
                 return $this->apiReturn(['code' => 202, 'msg' => '不是群成员，不可以发信息']);
@@ -85,35 +85,35 @@ class SessionListController extends AbstractController
 
 
         //查询最后消息，时间
-        $message = Message::lastMsg(Context::get('code'), (string)$params['accept_code']);
+        $message = Message::lastMsg(Context::get('code'), (string)$params['acceptCode']);
         if ($message) {
             $session = MessageSessionList::create([
-                'session_type' => $params['session_type'],
+                'session_type' => $params['sessionType'],
                 'main_code' => Context::get('code'),
-                'accept_code' => $params['accept_code'],
+                'accept_code' => $params['acceptCode'],
                 'last_time' => $message->created_at,
                 'last_message' => $message->content,
                 'last_message_type' => $message->content_type,
             ]);
         } else {
             $session = MessageSessionList::create([
-                'session_type' => $params['session_type'],
+                'session_type' => $params['sessionType'],
                 'main_code' => Context::get('code'),
-                'accept_code' => $params['accept_code'],
+                'accept_code' => $params['acceptCode'],
             ]);
         }
-        if ($params['session_type'] === 'group') {
-            $accept = Group::findFromCache($params['accept_code']);
+        if ($params['sessionType'] === 'group') {
+            $accept = Group::findFromCache($params['acceptCode']);
             $nickname = $accept->nickname;
             $headImage = $accept->head_image;
         } else {
-            $accept = Member::findFromCache($params['accept_code']);
+            $accept = Member::findFromCache($params['acceptCode']);
             $nickname = $accept->nickname;
             $headImage = $accept->head_image;
         }
 
         $data = [
-            'accept_code' => $params['accept_code'],
+            'accept_code' => $params['acceptCode'],
             'accept_info' => [
                 'remarks' => $params['remarks'],
                 'nickname' => $nickname,
@@ -125,12 +125,12 @@ class SessionListController extends AbstractController
             'last_message_type' => isset($message->content_type) ? $message->content_type : '',
             'last_time' => isset($message->created_at) ? $message->created_at : '',
             'session_id' => $session->session_id,
-            'session_type' => $params['session_type'],
+            'session_type' => $params['sessionType'],
             'topping' => $session->topping,
         ];
 
         //添加会话列表
-        SessionList::getInstance()->addSession(Context::get('code'), $params['accept_code'], $data);
+        SessionList::getInstance()->addSession(Context::get('code'), $params['acceptCode'], $data);
 
         return $this->apiReturn($data);
     }

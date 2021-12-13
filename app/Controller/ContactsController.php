@@ -30,27 +30,6 @@ class ContactsController extends AbstractController
      */
     protected $validationFactory;
 
-
-    /**
-     * 搜索符合条件的用户
-     * @GetMapping(path="searchUsers")
-     */
-    public function searchUsers()
-    {
-        $validator = $this->validationFactory->make($this->request->all(),
-            [
-                'keyword' => 'required',
-                'currentPage' => 'required',
-                'perPage' => 'required',
-            ]
-        );
-        if ($validator->fails()) {
-            throw new ValidateException($validator->errors()->first());
-        }
-        $params = $validator->validated();
-        return $this->apiReturn((new ContactsService())->searchUsersLists((string)$params['keyword'], (int)$params['currentPage'], (int)$params['perPage']));
-    }
-
     /**
      * 搜索符合条件的用户
      * @GetMapping(path="search")
@@ -58,10 +37,7 @@ class ContactsController extends AbstractController
     public function search()
     {
         $validator = $this->validationFactory->make($this->request->all(),
-            [
-                'accept_type' => 'required',
-                'keyword' => 'required',
-            ]
+            ['accept_type' => 'required', 'keyword' => 'required',]
         );
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
@@ -70,6 +46,7 @@ class ContactsController extends AbstractController
         return $this->apiReturn((new ContactsService())->searchService((string)$params['accept_type'], (string)$params['keyword']));
     }
 
+
     /**
      * 发送添加好友请求
      * @PostMapping(path="sendAddFriendRequest")
@@ -77,7 +54,7 @@ class ContactsController extends AbstractController
     public function sendAddFriendRequest()
     {
         $validator = $this->validationFactory->make($this->request->all(),
-            ['message_type' => 'required', 'send_code' => 'required', 'accept_code' => 'required', 'remarks' => 'required']
+            ['message_type' => 'required', 'main_code' => 'required', 'accept_code' => 'required', 'remarks' => 'required']
         );
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
@@ -101,7 +78,7 @@ class ContactsController extends AbstractController
     public function friendRequestProcessing()
     {
         $validator = $this->validationFactory->make($this->request->all(), [
-            'send_code' => 'required',
+            'main_code' => 'required',
             'accept_code' => 'required',
             'message_type' => 'required',
             'record_id' => 'required',
@@ -142,7 +119,7 @@ class ContactsController extends AbstractController
         $params = $this->request->all();
         $validator = $this->validationFactory->make($params, [
             'type' => 'required',
-            'friendCode' => 'required',
+            'acceptCode' => 'required',
         ]);
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());

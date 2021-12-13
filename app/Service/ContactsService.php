@@ -11,32 +11,9 @@ use Overtrue\Pinyin\Pinyin;
 use App\Model\ContactsFriend;
 use App\Model\ContactsAddRecord;
 use App\Exception\BusinessException;
-use Hyperf\Paginator\LengthAwarePaginator;
 
 class ContactsService
 {
-
-    /**
-     * 查询符合条件的用户列表
-     * @param string $keyword 模糊条件
-     * @param int $currentPage 当前页
-     * @param int $perPage 总条数
-     * @return LengthAwarePaginator
-     */
-    public function searchUsersLists(string $keyword, int $currentPage, int $perPage)
-    {
-        $members = Member::where('username', 'like', '%' . $keyword . '%')->get();
-
-        $lengthAwarePaginator = new LengthAwarePaginator($members, $members->count(), $perPage, $currentPage);
-
-        $data = $lengthAwarePaginator->toArray();
-
-        if (isset($data['data']) && !empty($data['data'])) {
-            return $data;
-        }
-        return [];
-    }
-
 
     /**
      * 搜索用户或者群
@@ -66,11 +43,11 @@ class ContactsService
 
     /**
      * 发送添加好友请求
-     * @param $data
+     * @param array $data
      * @return array
      * @throws BusinessException
      */
-    public function sendAddFriendRequest($data): array
+    public function sendAddFriendRequest(array $data): array
     {
         if (Context::get('code') === $data['accept_code']) {
             throw new BusinessException('不能添加自己');
@@ -80,27 +57,22 @@ class ContactsService
             throw new BusinessException('未查询到该用户具体信息');
         }
         //查询是否多次发起请求
-        $record = ContactsAddRecord::query()
-            ->where([
-                ['send_code', $data['send_code']],
-                ['accept_code', $data['accept_code']],])->first();
-
+        $record = ContactsAddRecord::record($data['main_code'], $data['accept_code']);
         if ($record && $record->status === 'agree') {
             throw new BusinessException('已经是好友了');
         }
         if ($record && $record->status === 'pending') {
             throw new BusinessException('发送成功，对方处理中');
         }
-
         $id = enter($data);
         if ($id) {
-            $contactsAddRecordModel = new ContactsAddRecord();
-            $contactsAddRecordModel->record_id = $id;
-            $contactsAddRecordModel->send_code = $data['send_code'];
-            $contactsAddRecordModel->accept_code = $data['accept_code'];
-            $contactsAddRecordModel->remarks = $data['remarks'];
-            $contactsAddRecordModel->status = 'pending';
-            $contactsAddRecordModel->save();
+            ContactsAddRecord::create([
+                'record_id' => $id,
+                'main_code' => $data['main_code'],
+                'accept_code' => $data['accept_code'],
+                'remarks' => $data['remarks'],
+                'status' => 'pending',
+            ]);
             return ['code' => 200, 'msg' => '发送成功'];
         }
         return ['code' => 200, 'msg' => '发送成功，对方处理中'];
@@ -120,7 +92,7 @@ class ContactsService
                 $data = [
                     [
                         'record_id' => $item->record_id,
-                        'send_code' => $item->send_code,
+                        'send_code' => $item->main_code,
                         'send_head_image' => picturePath($members->head_image),
                         'send_nickname' => $members->nickname,
                         'accept_code' => $item->accept_code,
@@ -165,21 +137,8 @@ class ContactsService
             }
             //同意
             agree:
-            $a = ContactsFriend::contacts($record->send_code, $record->accept_code);
-            if (!$a) {
-                ContactsFriend::create([
-                    'remarks' => '',
-                    'main_code' => $record->send_code,
-                    'friend_code' => $record->accept_code,
-                ]);
-            }
-            $b = ContactsFriend::contacts($record->accept_code, $record->send_code);
-            if (!$b) {
-                ContactsFriend::create([
-                    'main_code' => $record->accept_code,
-                    'friend_code' => $record->send_code,
-                ]);
-            }
+            ContactsFriend::createA($record->main_code, $record->accept_code);
+            ContactsFriend::createA($record->accept_code, $record->main_code);
             //查询发送人基础信息
             $member = Member::findFromCache($params['send_code']);
             $params['head_image'] = $member->head_image;
@@ -218,7 +177,7 @@ class ContactsService
                     $friendData[$k]['nickname'] = $members->nickname;
                     $friendData[$k]['email'] = $members->email;
                     $friendData[$k]['remarks'] = $item->remarks;
-                    $friendData[$k]['code'] = $item->friend_code;
+                    $friendData[$k]['code'] = $item->accetp_code;
                     $friendData[$k]['type'] = 'personal';
                     $friendData[$k]['initials'] = $this->firstChar($members->nickname);
                 }
@@ -251,7 +210,6 @@ class ContactsService
      */
     public function getContactGroups()
     {
-        var_dump(Context::get('code'));
         //查询群组
         $groupData = [];
         $groups = GroupMember::where('group_member.m_code', Context::get('code'))
@@ -279,10 +237,10 @@ class ContactsService
     {
         switch ($params['type']) {
             case 'deleteFriend':
-                ContactsFriend::doubleDelete(Context::get('code'), $params['friendCode']);
+                ContactsFriend::doubleDelete(Context::get('code'), $params['acceptCode']);
                 break;
             case 'remarks':
-                $contacts = ContactsFriend::contacts(Context::get('code'), $params['friendCode']);
+                $contacts = ContactsFriend::contacts(Context::get('code'), $params['acceptCode']);
                 if ($contacts) {
                     $contacts->remarks = $params['remarks'];
                     return $contacts->save();
