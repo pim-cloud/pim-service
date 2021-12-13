@@ -39,7 +39,7 @@ class ContactsFriend extends Model implements CacheableInterface
      *
      * @var array
      */
-    protected $casts = ['id' => 'integer', 'config' => 'json', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected $casts = ['id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
 
     /**

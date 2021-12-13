@@ -168,16 +168,16 @@ class ContactsService
         $contactsFriends = ContactsFriend::where('main_code', Context::get('code'))->get();
 
         $data = [];
-        if (!$contactsFriends->isEmpty()) {
+        if ($contactsFriends) {
             $friendData = [];
             foreach ($contactsFriends as $k => $item) {
-                $members = Member::findFromCache($item->friend_code);
+                $members = Member::findFromCache($item->accept_code);
                 if ($members) {
                     $friendData[$k]['head_image'] = picturePath($members->head_image);
                     $friendData[$k]['nickname'] = $members->nickname;
                     $friendData[$k]['email'] = $members->email;
                     $friendData[$k]['remarks'] = $item->remarks;
-                    $friendData[$k]['code'] = $item->accetp_code;
+                    $friendData[$k]['code'] = $item->accept_code;
                     $friendData[$k]['type'] = 'personal';
                     $friendData[$k]['initials'] = $this->firstChar($members->nickname);
                 }
