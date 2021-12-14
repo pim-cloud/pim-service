@@ -3,6 +3,7 @@ declare (strict_types=1);
 
 namespace App\Model;
 
+use App\Exception\BusinessException;
 use Hyperf\DbConnection\Db;
 use Hyperf\ModelCache\Cacheable;
 use Hyperf\ModelCache\CacheableInterface;
@@ -111,9 +112,36 @@ class ContactsFriend extends Model implements CacheableInterface
         if (!$member) {
             return [];
         }
-        $member->remarks = $contactsInfo->remarks;
         $member->head_image = picturePath($member->head_image);
+        $member->id = $contactsInfo->id;
+        $member->config = [
+            'remarks' => $contactsInfo->remarks,
+            'topping' => $contactsInfo->topping,
+            'disturb' => $contactsInfo->disturb,
+            'star' => $contactsInfo->star,
+        ];
 
         return $member;
+    }
+
+    /**
+     * 修改好友配置信息
+     * @param int $id 主键id
+     * @param string $field 需要修改的字段
+     * @param $value 需要修改的值
+     * @throws BusinessException
+     */
+    public static function setConfig(int $id, string $field, $value)
+    {
+        try {
+            $contacts = ContactsFriend::find($id);
+            if ($contacts) {
+                $contacts->$field = $value;
+                $contacts->save();
+            }
+            return;
+        } catch (\Exception $e) {
+            throw new BusinessException($e->getMessage());
+        }
     }
 }

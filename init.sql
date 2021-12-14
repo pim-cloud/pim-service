@@ -2,7 +2,7 @@
 
 CREATE TABLE `contacts_add_record` (
                                        `record_id` varchar(36) NOT NULL,
-                                       `send_code` varchar(36) CHARACTER SET utf8 NOT NULL,
+                                       `main_code` varchar(36) CHARACTER SET utf8 NOT NULL,
                                        `accept_code` varchar(36) CHARACTER SET utf8 NOT NULL,
                                        `remarks` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
                                        `status` enum('pending','agree','refuse','ignore') CHARACTER SET utf8 DEFAULT NULL,
@@ -17,28 +17,16 @@ CREATE TABLE `contacts_add_record` (
 CREATE TABLE `contacts_friend` (
                                    `id` int(11) NOT NULL AUTO_INCREMENT,
                                    `main_code` varchar(32) CHARACTER SET utf8 NOT NULL COMMENT '我的uid',
-                                   `friend_code` varchar(32) CHARACTER SET utf8 NOT NULL COMMENT '朋友uid',
-                                   `remarks` varchar(20) NOT NULL,
+                                   `accept_code` varchar(32) CHARACTER SET utf8 NOT NULL COMMENT '朋友uid',
+                                   `remarks` varchar(20) NOT NULL DEFAULT '' COMMENT '备注',
+                                   `topping` tinyint(1) NOT NULL DEFAULT '0' COMMENT '置顶',
+                                   `disturb` tinyint(1) NOT NULL DEFAULT '0' COMMENT '不提示消息',
+                                   `star` tinyint(1) NOT NULL DEFAULT '0' COMMENT '星标朋友',
                                    `created_at` datetime NOT NULL COMMENT '创建时间',
-                                   `updated_at` datetime DEFAULT NULL,
+                                   `updated_at` datetime NOT NULL,
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `contacts_friend`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-
--- homestead.contacts_friend definition
-
-CREATE TABLE `contacts_friend` (
-                                   `id` int NOT NULL AUTO_INCREMENT,
-                                   `main_uid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '我的uid',
-                                   `remarks` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
-                                   `friend_uid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '朋友uid',
-                                   `created_at` datetime NOT NULL COMMENT '创建时间',
-                                   `updated_at` datetime DEFAULT NULL,
-                                   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- im.contacts_recent definition
 
@@ -77,7 +65,7 @@ CREATE TABLE `group_member` (
                                 `created_at` datetime NOT NULL,
                                 `updated_at` datetime NOT NULL,
                                 PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COMMENT='群成员';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='群成员';
 
 
 -- im.group_member_join_record definition
@@ -111,7 +99,7 @@ CREATE TABLE `member` (
 CREATE TABLE `message` (
                            `msg_id` varchar(36) NOT NULL,
                            `content` varchar(500) CHARACTER SET utf8 NOT NULL,
-                           `send_code` varchar(36) CHARACTER SET utf8 NOT NULL,
+                           `main_code` varchar(36) CHARACTER SET utf8 NOT NULL,
                            `accept_type` enum('personal','group') NOT NULL,
                            `accept_code` varchar(36) CHARACTER SET utf8 NOT NULL,
                            `content_type` enum('text','picture','video') CHARACTER SET utf8 NOT NULL,
@@ -125,7 +113,7 @@ CREATE TABLE `message` (
 
 CREATE TABLE `message_index` (
                                  `msg_id` varchar(36) NOT NULL,
-                                 `send_code` varchar(36) CHARACTER SET utf8 NOT NULL,
+                                 `main_code` varchar(36) CHARACTER SET utf8 NOT NULL,
                                  `accept_code` varchar(36) CHARACTER SET utf8 NOT NULL,
                                  `read_state` enum('read','unread') NOT NULL,
                                  `created_at` datetime NOT NULL,
@@ -151,4 +139,4 @@ CREATE TABLE `message_session_list` (
                                         `created_at` datetime NOT NULL,
                                         `updated_at` datetime NOT NULL,
                                         PRIMARY KEY (`session_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COMMENT='消息会话列表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='消息会话列表';

@@ -127,6 +127,7 @@ class ContactsController extends AbstractController
         return $this->apiReturn((new ContactsService())->editService($params));
     }
 
+
     /**
      * 获取好友详情
      * @GetMapping(path="getFriendDetail")

@@ -231,7 +231,8 @@ class ContactsService
     /**
      * 好友编辑
      * @param array $params
-     * @return bool
+     * @return int[]
+     * @throws BusinessException
      */
     public function editService(array $params)
     {
@@ -243,9 +244,20 @@ class ContactsService
                 $contacts = ContactsFriend::contacts(Context::get('code'), $params['acceptCode']);
                 if ($contacts) {
                     $contacts->remarks = $params['remarks'];
-                    return $contacts->save();
+                    $contacts->save();
                 }
                 break;
+            case 'topping':
+                ContactsFriend::setConfig($params['id'], 'topping', $params['configValue']);
+                break;
+            case 'disturb':
+                ContactsFriend::setConfig($params['id'], 'disturb', $params['configValue']);
+                break;
+            case 'star':
+                ContactsFriend::setConfig($params['id'], 'star', $params['configValue']);
+                break;
         }
+
+        return ['code' => 200];
     }
 }
