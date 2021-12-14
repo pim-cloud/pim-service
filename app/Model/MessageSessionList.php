@@ -4,13 +4,15 @@ declare (strict_types=1);
 
 namespace App\Model;
 
+use App\Exception\BusinessException;
+
 /**
  * @property int $session_id
  * @property string $session_type
  * @property string $main_code
  * @property string $accept_code
- * @property string $disturb_status
- * @property string $on_line_status
+ * @property string $disturb
+ * @property string $online
  * @property int $unread
  * @property string $topping
  * @property string $last_message
@@ -40,8 +42,8 @@ class MessageSessionList extends Model
         'session_type',
         'main_code',
         'accept_code',
-        'disturb_status',
-        'on_line_status',
+        'disturb',
+        'online',
         'unread',
         'topping',
         'last_message',
@@ -58,94 +60,24 @@ class MessageSessionList extends Model
     protected $casts = ['session_id' => 'integer', 'unread' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     /**
-     * 设置消息免打扰
-     * @param string $mainCode 我的uid
-     * @param string $acceptCode 接收者uid
-     * @return bool
-     */
-    public static function saveDisturbStatus(string $mainCode, string $acceptCode)
-    {
-        $list = MessageSessionList::where('main_code', $mainCode)
-            ->where('accept_code', $acceptCode)
-            ->first(['session_id', 'disturb_status']);
-        if ($list->disturb_status === 'yes') {
-            $list->disturb_status = 'no';
-        } else {
-            $list->disturb_status = 'yes';
-        }
-        return $list->save();
-    }
-
-    /**
-     * 获取会话列表
-     * @param string $mainCode
-     * @return array
-     */
-    public static function sessionList(string $mainCode): array
-    {
-        $session = MessageSessionList::where('uid', $mainCode)->get();
-
-        $data = [];
-        if ($session) {
-            foreach ($session as $item) {
-                if ($item->session_type === 'group') {
-                    $group = Group::findFromCache($item->accept_code);
-                    $nickname = $group->nickname;
-                    $headImage = picturePath($group->head_image);
-                } else {
-                    $member = Member::findFromCache($item->accept_code);
-                    $nickname = $member->nickname;
-                    $headImage = picturePath($member->head_image);
-                }
-
-                $data[] = [
-                    'accept_info' => [
-                        'nickname' => $nickname,
-                        'head_image' => $headImage,
-                    ],
-                    'topping' => $item->topping,
-                    'last_time' => $item->last_time,
-                    'session_id' => $item->session_id,
-                    'accept_code' => $item->accept_uid,
-                    'session_type' => $item->session_type,
-                    'last_message' => $item->last_message,
-                    'disturb_status' => $item->disturb_status,
-                    'last_message_type' => $item->last_message_type,
-                ];
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * 会话置顶
+     * 设置会话
      * @param int $sessionId
-     * @return bool
+     * @param string $field
+     * @param $value
+     * @throws BusinessException
      */
-    public static function sessionTop(int $sessionId): bool
+    public static function setSession(int $sessionId, $field, $value)
     {
-        $session = MessageSessionList::find($sessionId);
-        if (!$session) {
-            return false;
+        try {
+            $session = MessageSessionList::find($sessionId);
+            if ($session) {
+                $session->$field = $value;
+                $session->save();
+            }
+            return;
+        } catch (\Exception $e) {
+            throw new BusinessException($e->getMessage());
         }
-        $topping = $session->topping === 'yes' ? 'no' : 'yes';
-        $session->topping = $topping;
-        return $session->save();
     }
 
-    /**
-     * 会话屏蔽消息不提示
-     * @param string $acceptCode
-     * @param string $status
-     * @return bool
-     */
-    public static function disturb(string $acceptCode, string $status): bool
-    {
-        $message = MessageSessionList::where('accept_code', $acceptCode)->first();
-        if ($message) {
-            $message->disturb_status = $status;
-            return (bool)$message->save();
-        }
-        return false;
-    }
 }

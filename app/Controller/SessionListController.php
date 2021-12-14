@@ -7,6 +7,7 @@ use App\Model\Group;
 use App\Model\Member;
 use App\Model\Message;
 use App\Redis\SessionList;
+use App\Service\SessionService;
 use Hyperf\Utils\Context;
 use App\Model\GroupMember;
 use App\Model\ContactsFriend;
@@ -112,6 +113,13 @@ class SessionListController extends AbstractController
             $headImage = $accept->head_image;
         }
 
+        //消息是否不提示
+        $disturb = 0;
+        if ($params['sessionType'] === 'personal') {
+            $contacts = ContactsFriend::createA(Context::get('code'), $params['acceptCode']);
+            $disturb = $contacts ? $contacts->disturb : 0;
+        }
+
         $data = [
             'accept_code' => $params['acceptCode'],
             'accept_info' => [
@@ -119,14 +127,14 @@ class SessionListController extends AbstractController
                 'nickname' => $nickname,
                 'head_image' => picturePath($headImage)
             ],
-            'disturb_status' => $session->disturb_status,
+            'disturb' => $disturb,
+            'topping' => $session->topping,
             'unread' => 0,
             'last_message' => isset($message->content) ? $message->content : '',
             'last_message_type' => isset($message->content_type) ? $message->content_type : '',
             'last_time' => isset($message->created_at) ? $message->created_at : '',
             'session_id' => $session->session_id,
             'session_type' => $params['sessionType'],
-            'topping' => $session->topping,
         ];
 
         //添加会话列表
@@ -153,20 +161,6 @@ class SessionListController extends AbstractController
         return $this->apiReturn(['code' => 200, 'msg' => '删除成功']);
     }
 
-    /**
-     * 是否开启或关闭免打扰
-     * @PostMapping(path="setDisturb")
-     */
-    public function setDisturb()
-    {
-        $validator = $this->validationFactory->make($this->request->all(), ['acceptCode' => 'required']);
-        if ($validator->fails()) {
-            throw new ValidateException($validator->errors()->first());
-        }
-        $save = MessageSessionList::saveDisturbStatus(Context::get('code'), $validator->validated()['acceptCode']);
-
-        return $this->apiReturn($save);
-    }
 
     /**
      * 更新消息未读条数
@@ -190,5 +184,22 @@ class SessionListController extends AbstractController
         $topping = MessageSessionList::sessionTop($validator->validated()['sessionId']);
 
         return $this->apiReturn($topping);
+    }
+
+    /**
+     * 会话编辑
+     * @PostMapping(path="editSession")
+     */
+    public function editSession()
+    {
+        $params = $this->request->all();
+        $validator = $this->validationFactory->make($params, [
+            'type' => 'required',
+            'sessionId' => 'required',
+        ]);
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn((new SessionService())->sessionEditService($params));
     }
 }
