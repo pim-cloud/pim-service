@@ -55,8 +55,17 @@ class MessageController extends AbstractController
      * 历史消息
      * @GetMapping(path="getMsgRecord")
      */
-    public function getMsgRecord(MsgRecordRequest $request)
+    public function getMsgRecord()
     {
-        return $this->apiReturn((new MessageService())->getMsgRecordService($request->query()));
+        $validator = $this->validationFactory->make($this->request->all(), [
+            'acceptCode' => 'required',//接受方ID
+            'sessionType' => 'required',//接收消息的类型
+            'page' => 'required|numeric',//当前页
+            'perPage' => 'required|numeric',//每页条数
+        ]);
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first());
+        }
+        return $this->apiReturn((new MessageService())->getMsgRecordService($validator->validated()));
     }
 }

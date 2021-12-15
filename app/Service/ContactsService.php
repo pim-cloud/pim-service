@@ -179,7 +179,7 @@ class ContactsService
                     $friendData[$k]['remarks'] = $item->remarks;
                     $friendData[$k]['code'] = $item->accept_code;
                     $friendData[$k]['type'] = 'personal';
-                    $friendData[$k]['initials'] = $this->firstChar($members->nickname);
+                    $friendData[$k]['initials'] = 'A';
                 }
             }
             foreach ($friendData as $item) {
@@ -199,8 +199,9 @@ class ContactsService
             return strtoupper($str);
         }
         $pinyin = new Pinyin('\\Overtrue\\Pinyin\\MemoryFileDictLoader');
-        $pin = $pinyin->abbr($str);
-        return strtolower($pin);
+        $pin = $pinyin->abbr($name);
+        $res = strtolower($pin);
+        return strtoupper(substr($res, 0, 1));
     }
 
 
