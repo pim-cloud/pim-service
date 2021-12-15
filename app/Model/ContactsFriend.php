@@ -13,8 +13,6 @@ use Hyperf\ModelCache\CacheableInterface;
  * @property string $main_code
  * @property string $accept_code
  * @property string $remarks
- * @property int $topping
- * @property int $disturb
  * @property int $star
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -82,15 +80,15 @@ class ContactsFriend extends Model implements CacheableInterface
      * 双向好友删除
      * @param string $mainCode
      * @param string $acceptCode
-     * @return bool
+     * @return mixed
      */
-    public static function doubleDelete(string $mainCode, string $acceptCode): bool
+    public static function doubleDelete(string $mainCode, string $acceptCode)
     {
-        return Db::transaction(function ($mainCode, $acceptCode) {
-            Db::table($this->table)->where('main_uid', $mainCode)
+        return Db::transaction(function () use ($mainCode, $acceptCode) {
+            Db::table('contacts_friend')->where('main_code', $mainCode)
                 ->where('accept_code', $acceptCode)
                 ->delete();
-            Db::table($this->table)->where('main_uid', $acceptCode)
+            Db::table('contacts_friend')->where('main_code', $acceptCode)
                 ->where('accept_code', $mainCode)
                 ->delete();
         });
@@ -112,11 +110,13 @@ class ContactsFriend extends Model implements CacheableInterface
         if (!$member) {
             return [];
         }
+        $session = MessageSessionList::where('main_code', $mainCode)->where('accept_code', $acceptCode)->first();
+
         $member->head_image = picturePath($member->head_image);
         $member->id = $contactsInfo->id;
         $member->config = [
             'remarks' => $contactsInfo->remarks,
-            'topping' => $contactsInfo->topping,
+            'topping' => isset($session->topping) ? $session->topping : 0,
             'disturb' => $contactsInfo->disturb,
             'star' => $contactsInfo->star,
         ];

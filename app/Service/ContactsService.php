@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Model\Group;
 use App\Model\Member;
+use App\Model\MessageSessionList;
 use Hyperf\Utils\Context;
 use App\Model\GroupMember;
 use Overtrue\Pinyin\Pinyin;
@@ -247,9 +248,6 @@ class ContactsService
                     $contacts->remarks = $params['remarks'];
                     $contacts->save();
                 }
-                break;
-            case 'topping':
-                ContactsFriend::setConfig($params['id'], 'topping', $params['configValue']);
                 break;
             case 'disturb':
                 ContactsFriend::setConfig($params['id'], 'disturb', $params['configValue']);

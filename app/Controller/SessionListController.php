@@ -181,8 +181,11 @@ class SessionListController extends AbstractController
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
-        $topping = MessageSessionList::sessionTop($validator->validated()['sessionId']);
-
+        $topping = MessageSessionList::find($validator->validated()['sessionId']);
+        if ($topping) {
+            $topping->topping === 1 ? $topping->topping = 0 : $topping->topping = 1;
+            $topping->save();
+        }
         return $this->apiReturn($topping);
     }
 
