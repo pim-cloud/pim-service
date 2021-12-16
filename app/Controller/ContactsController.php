@@ -54,7 +54,7 @@ class ContactsController extends AbstractController
     public function sendAddFriendRequest()
     {
         $validator = $this->validationFactory->make($this->request->all(),
-            ['message_type' => 'required', 'main_code' => 'required', 'accept_code' => 'required', 'remarks' => 'required']
+            ['accept_code' => 'required', 'remarks' => 'required']
         );
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());

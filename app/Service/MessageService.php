@@ -34,10 +34,11 @@ class MessageService
             $request['nickname'] = $groups->nickname;
         }
 
-        $members = Member::findFromCache($request['send_code']);
+        $members = Member::findFromCache(Context::get('code'));
 
         $request['send_head_image'] = $members->head_image;
         $request['send_nickname'] = $members->nickname;
+        $request['main_code'] = Context::get('code');
 
         $id = enter($request);
 
@@ -52,7 +53,7 @@ class MessageService
         try {
             $message->msg_id = $id;
             $message->content = $request['content'];
-            $message->send_code = $request['send_code'];
+            $message->main_code = Context::get('code');
             $message->accept_type = $request['accept_type'];
             $message->accept_code = $request['accept_code'];
             $message->content_type = $request['content_type'];
@@ -62,21 +63,17 @@ class MessageService
             if ($request['accept_type'] === 'group') {
                 //查询当前群组成员
                 $groupNumber = $request['accept_code'];
-                $group = GroupMember::where('group_number', $groupNumber)->get();
+                $group = GroupMember::where('code', $groupNumber)->get();
                 foreach ($group as $item) {
-                    $messageIndex->send_code = $request['send_code'];
                     $messageIndex->accept_code = $item->code;
-                    $messageIndex->msg_id = $id;
-                    $messageIndex->read_state = 'unread';
-                    $messageIndex->save();
                 }
             } else {
-                $messageIndex->send_code = Context::get('code');
                 $messageIndex->accept_code = $request['accept_code'];
-                $messageIndex->msg_id = $id;
-                $messageIndex->read_state = 'unread';
-                $messageIndex->save();
             }
+            $messageIndex->main_code = Context::get('code');
+            $messageIndex->msg_id = $id;
+            $messageIndex->read_state = 'unread';
+            $messageIndex->save();
 
             Db::commit();
 

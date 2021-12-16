@@ -58,18 +58,19 @@ class ContactsService
             throw new BusinessException('未查询到该用户具体信息');
         }
         //查询是否多次发起请求
-        $record = ContactsAddRecord::record($data['main_code'], $data['accept_code']);
+        $record = ContactsAddRecord::record(Context::get('code'), $data['accept_code']);
         if ($record && $record->status === 'agree') {
             throw new BusinessException('已经是好友了');
         }
         if ($record && $record->status === 'pending') {
             throw new BusinessException('发送成功，对方处理中');
         }
+        $data['message_type'] = 'add_friend';
+        $data['main_code'] = Context::get('code');
         $id = enter($data);
         if ($id) {
             ContactsAddRecord::create([
-                'record_id' => $id,
-                'main_code' => $data['main_code'],
+                'main_code' => Context::get('code'),
                 'accept_code' => $data['accept_code'],
                 'remarks' => $data['remarks'],
                 'status' => 'pending',

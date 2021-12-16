@@ -5,7 +5,7 @@ declare (strict_types=1);
 namespace App\Model;
 
 /**
- * @property string $record_id
+ * @property int $record_id
  * @property string $main_code
  * @property string $accept_code
  * @property string $remarks
@@ -29,7 +29,7 @@ class ContactsAddRecord extends Model
      *
      * @var array
      */
-    protected $fillable = [];
+    protected $guarded = [];
     /**
      * The attributes that should be cast to native types.
      *

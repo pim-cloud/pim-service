@@ -57,8 +57,8 @@ return [
         ],
     ],
     'settings' => [
-        Constant::OPTION_HEARTBEAT_IDLE_TIME => 120, // 表示一个连接如果120秒内未向服务器发送任何数据，此连接将被强制关闭
-        Constant::OPTION_HEARTBEAT_CHECK_INTERVAL => 60, // 表示每60秒遍历一次
+        Constant::OPTION_HEARTBEAT_IDLE_TIME => 500, // 表示一个连接如果120秒内未向服务器发送任何数据，此连接将被强制关闭
+        Constant::OPTION_HEARTBEAT_CHECK_INTERVAL => 100, // 表示每60秒遍历一次
         Constant::OPTION_ENABLE_COROUTINE => true,
         Constant::OPTION_WORKER_NUM => swoole_cpu_num(),
         Constant::OPTION_PID_FILE => BASE_PATH . '/runtime/hyperf.pid',

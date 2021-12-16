@@ -22,9 +22,10 @@ class EventExplain
         if (empty($data)) {
             return false;
         }
-        output('开始分发消息');
+        output('开始分发消息**' . $data['message_type']);
         switch ($data['message_type']) {
             case 'chat':
+                output($data['accept_type']);
                 if ($data['accept_type'] === 'group') {
                     $this->groupRadioBroadcast($data);
                 } else {
@@ -48,16 +49,17 @@ class EventExplain
      */
     public function groupRadioBroadcast($data)
     {
+        var_dump($data);
         $members = GroupMember::where('code', $data['accept_code'])->get();
 
-        foreach ($members as $value) {
+        foreach ($members as $item) {
             //不给发送人推送消息
-            if ($value->uid === $data['send_code']) {
+            if ($item->m_code === $data['main_code']) {
                 continue;
             }
             //获取web端连接标识
-            $fd = OnLine::getInstance()->getFdByUid('web:', $value->uid);
-            $this->sender->send($fd, json_encode($data));
+            $fd = OnLine::getInstance()->getFdByUid('web:', $item->m_code);
+            $this->send($fd, $data);
         }
     }
 
@@ -68,10 +70,12 @@ class EventExplain
     public function singleSend($data)
     {
         $fd = OnLine::getInstance()->getFdByUid('web:', $data['accept_code']);
-
-        output('单聊消息推送*发送人*' . $data['send_code'] . '*接收人*' . $data['accept_code'] . '*fd*' . $fd);
-
-        $this->sender->send($fd, json_encode($data));
+        $this->send($fd, $data);
     }
 
+    public function send($fd, $data)
+    {
+        output('推送消息**' . $data['main_code'] . '*接收人*' . $data['accept_code'] . '***FD***' . $fd);
+        $this->sender->send($fd, json_encode($data));
+    }
 }
