@@ -17,40 +17,40 @@ class IndexController extends AbstractController
      */
     public function index()
     {
-//        $member = Member::where('code', '!=', '329567474519379969')->get();
-//
-//        foreach ($member as $key => $val) {
-//            $time = date('Y-m-d m:i:s');
-//            ContactsFriend::create([
-//                'main_code' => '329567474519379969',
-//                'accept_code' => $val->code,
-//                'created_at' => $time,
-//                'updated_at' => $time,
-//            ]);
-//            ContactsFriend::create([
-//                'main_code' => $val->code,
-//                'accept_code' => '329567474519379969',
-//                'created_at' => $time,
-//                'updated_at' => $time,
-//            ]);
-//        }
+        /*$member = Member::where('code', '!=', '330299036953219073')->get();
 
-//        $b = 0;
-//        while ($b < 200) {
-//            $b++;
-//            $name = $this->getName();
-//            Member::create([
-//                'code' => uniqid(),
-//                'username' => uniqid(),
-//                'email' => uniqid().'@qq.com',
-//                'password' => uniqid(),
-//                'salt' => uniqid(),
-//                'head_image' => 'morentouxiang.png',
-//                'nickname' => $name,
-//                'created_at' => date('Y-m-d m:i:s'),
-//                'updated_at' => date('Y-m-d m:i:s'),
-//            ]);
-//        }
+        foreach ($member as $key => $val) {
+            $time = date('Y-m-d m:i:s');
+            ContactsFriend::create([
+                'main_code' => '330299036953219073',
+                'accept_code' => $val->code,
+                'created_at' => $time,
+                'updated_at' => $time,
+            ]);
+            ContactsFriend::create([
+                'main_code' => $val->code,
+                'accept_code' => '330299036953219073',
+                'created_at' => $time,
+                'updated_at' => $time,
+            ]);
+        }*/
+
+        /*$b = 0;
+        while ($b < 200) {
+            $b++;
+            $name = $this->getName();
+            Member::create([
+                'code' => uniqid(),
+                'username' => uniqid(),
+                'email' => uniqid().'@qq.com',
+                'password' => uniqid(),
+                'salt' => uniqid(),
+                'head_image' => 'morentouxiang.png',
+                'nickname' => $name,
+                'created_at' => date('Y-m-d m:i:s'),
+                'updated_at' => date('Y-m-d m:i:s'),
+            ]);
+        }*/
     }
 
     public function getName()

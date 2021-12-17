@@ -103,6 +103,8 @@ class SessionListController extends AbstractController
                 'accept_code' => $params['acceptCode'],
             ]);
         }
+
+        $initials = '';
         if ($params['sessionType'] === 'group') {
             $accept = Group::findFromCache($params['acceptCode']);
             $nickname = $accept->nickname;
@@ -111,6 +113,7 @@ class SessionListController extends AbstractController
             $accept = Member::findFromCache($params['acceptCode']);
             $nickname = $accept->nickname;
             $headImage = $accept->head_image;
+            $initials = 'A';
         }
 
         //消息是否不提示
@@ -125,7 +128,8 @@ class SessionListController extends AbstractController
             'accept_info' => [
                 'remarks' => $params['remarks'],
                 'nickname' => $nickname,
-                'head_image' => picturePath($headImage)
+                'head_image' => picturePath($headImage),
+                'initials' => $initials
             ],
             'disturb' => $disturb,
             'topping' => $session->topping,
