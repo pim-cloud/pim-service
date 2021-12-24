@@ -119,7 +119,7 @@ class SessionListController extends AbstractController
         //消息是否不提示
         $disturb = 0;
         if ($params['sessionType'] === 'personal') {
-            $contacts = ContactsFriend::createA(Context::get('code'), $params['acceptCode']);
+            $contacts = ContactsFriend::contacts(Context::get('code'), $params['acceptCode']);
             $disturb = $contacts ? $contacts->disturb : 0;
         }
 

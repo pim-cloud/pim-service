@@ -171,24 +171,27 @@ class ContactsService
 
         $data = [];
         if ($contactsFriends) {
-            $friendData = [];
-            foreach ($contactsFriends as $k => $item) {
+            foreach ($contactsFriends as $item) {
                 $members = Member::findFromCache($item->accept_code);
                 if ($members) {
-                    $friendData[$k]['head_image'] = picturePath($members->head_image);
-                    $friendData[$k]['nickname'] = $members->nickname;
-                    $friendData[$k]['email'] = $members->email;
-                    $friendData[$k]['remarks'] = $item->remarks;
-                    $friendData[$k]['code'] = $item->accept_code;
-                    $friendData[$k]['type'] = 'personal';
-                    $friendData[$k]['initials'] = 'A';
+                    $data[$item->accept_code] = [
+                        'id' => $item->id,
+                        'head_image' => picturePath($members->head_image),
+                        'username' => $members->username,
+                        'nickname' => $members->nickname,
+                        'email' => $members->email,
+                        'showName' => !empty($item->remarks) ? $item->remarks : $members->nickname,
+                        'code' => $members->code,
+                        'config' => [
+                            'remarks' => $item->remarks,
+                            'topping' => $item->topping,
+                            'disturb' => $item->disturb,
+                            'star' => $item->star,
+                        ],
+                        'type' => 'personal'
+                    ];
                 }
             }
-            foreach ($friendData as $item) {
-                $k = empty($item['initials']) ? '其他' : $item['initials'];
-                $data[$k][] = $item;
-            }
-            ksort($data, SORT_NATURAL);
         }
         return $data;
     }
@@ -244,14 +247,13 @@ class ContactsService
                 ContactsFriend::doubleDelete(Context::get('code'), $params['acceptCode']);
                 break;
             case 'remarks':
-                $contacts = ContactsFriend::contacts(Context::get('code'), $params['acceptCode']);
-                if ($contacts) {
-                    $contacts->remarks = $params['remarks'];
-                    $contacts->save();
-                }
+                ContactsFriend::setConfig($params['id'], 'remarks', $params['configValue']);
                 break;
             case 'disturb':
                 ContactsFriend::setConfig($params['id'], 'disturb', $params['configValue']);
+                break;
+            case 'topping':
+                ContactsFriend::setConfig($params['id'], 'topping', $params['configValue']);
                 break;
             case 'star':
                 ContactsFriend::setConfig($params['id'], 'star', $params['configValue']);
