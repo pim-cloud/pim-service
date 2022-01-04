@@ -25,7 +25,7 @@ class MessageService
      */
     public function sendMessageService(array $request)
     {
-        $request['created_at'] = date('Y-m-d:H:i:s');
+        $request['created_at'] = date('Y-m-d H:i:s');
         $request['content'] = htmlspecialchars_decode($request['content']);
         //查询发送人信息
         if ($request['accept_type'] === 'group') {
@@ -77,7 +77,7 @@ class MessageService
 
             Db::commit();
 
-            return ['msg_id' => $id];
+            return ['msg_id' => $id, 'created_at' => $request['created_at']];
 
         } catch (\Throwable $e) {
             Db::rollBack();
@@ -144,7 +144,7 @@ class MessageService
 
             $send = Member::find(Context::get('code'));
 
-            if ($request['sessionType'] === 'group') {
+            if ($request['acceptType'] === 'group') {
                 $group = Group::findFromCache($request['acceptCode']);
                 $accept = [
                     'code' => $group->code,

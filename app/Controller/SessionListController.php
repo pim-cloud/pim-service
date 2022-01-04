@@ -44,7 +44,7 @@ class SessionListController extends AbstractController
         $list = SessionList::getInstance()->sessionLists(Context::get('code'));
         $data = [];
         if (!empty($list)) {
-            foreach ($list as $key => $item) {
+            foreach ($list as $item) {
                 $data[] = json_decode($item);
             }
         }
@@ -119,12 +119,17 @@ class SessionListController extends AbstractController
         //消息是否不提示
         $disturb = 0;
         if ($params['sessionType'] === 'personal') {
-            $contacts = ContactsFriend::createA(Context::get('code'), $params['acceptCode']);
+            $contacts = ContactsFriend::contacts(Context::get('code'), $params['acceptCode']);
             $disturb = $contacts ? $contacts->disturb : 0;
         }
 
         $data = [
             'accept_code' => $params['acceptCode'],
+            'accept_type' => $params['sessionType'],
+            'last_message' => isset($message->content) ? $message->content : '',
+            'last_message_type' => isset($message->content_type) ? $message->content_type : '',
+            'last_time' => isset($message->created_at) ? $message->created_at : '',
+            'session_id' => $session->session_id,
             'accept_info' => [
                 'remarks' => $params['remarks'],
                 'nickname' => $nickname,
@@ -134,11 +139,7 @@ class SessionListController extends AbstractController
             'disturb' => $disturb,
             'topping' => $session->topping,
             'unread' => 0,
-            'last_message' => isset($message->content) ? $message->content : '',
-            'last_message_type' => isset($message->content_type) ? $message->content_type : '',
-            'last_time' => isset($message->created_at) ? $message->created_at : '',
-            'session_id' => $session->session_id,
-            'session_type' => $params['sessionType'],
+
         ];
 
         //添加会话列表

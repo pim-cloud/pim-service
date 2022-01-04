@@ -11,7 +11,7 @@ use Throwable;
  */
 class BusinessException extends \Exception
 {
-    public function __construct(string $message = null, int $code = 202, Throwable $previous = null)
+    public function __construct(string $message = null, int $code = 200, Throwable $previous = null)
     {
         if (is_null($message)) {
             $message = 'BusinessException';
