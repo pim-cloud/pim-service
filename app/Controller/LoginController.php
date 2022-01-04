@@ -78,6 +78,11 @@ class LoginController extends AbstractController
         if ($validator->fails()) {
             throw new ValidateException($validator->errors()->first());
         }
+
+        $member = Member::where('username',$decryptedData['username'])->first();
+        if ($member) {
+            return $this->apiReturn(['code' => 202, 'msg' => 'pim号已存在,请修改']);
+        }
         $res = redis()->get('verification:code:register:' . $decryptedData['code']);
         if (!$res) {
             return $this->apiReturn(['code' => 202, 'msg' => '验证码错误']);
@@ -92,7 +97,7 @@ class LoginController extends AbstractController
 
         $data = Member::create([
             'code' => getSnowflakeId(),
-            'username' => '',
+            'username' => $decryptedData['username'],
             'email' => $decryptedData['email'],
             'nickname' => uniqid(),
             'head_image' => 'morentouxiang.png',

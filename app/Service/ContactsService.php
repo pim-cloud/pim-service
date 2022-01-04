@@ -5,7 +5,6 @@ namespace App\Service;
 
 use App\Model\Group;
 use App\Model\Member;
-use App\Model\MessageSessionList;
 use Hyperf\Utils\Context;
 use App\Model\GroupMember;
 use Overtrue\Pinyin\Pinyin;
@@ -51,22 +50,23 @@ class ContactsService
     public function sendAddFriendRequest(array $data): array
     {
         if (Context::get('code') === $data['accept_code']) {
-            throw new BusinessException('不能添加自己');
+            return ['code' => 202, 'msg' => '不能添加自己'];
         }
         $members = Member::where('code', $data['accept_code'])->first();
         if ($members === null) {
-            throw new BusinessException('未查询到该用户具体信息');
+            return ['code' => 202, 'msg' => '未查询到该用户具体信息'];
         }
         //查询是否多次发起请求
         $record = ContactsAddRecord::record(Context::get('code'), $data['accept_code']);
         if ($record && $record->status === 'agree') {
-            throw new BusinessException('已经是好友了');
+            return ['code' => 202, 'msg' => '已经是好友了'];
         }
         if ($record && $record->status === 'pending') {
-            throw new BusinessException('发送成功，对方处理中');
+            return ['code' => 202, 'msg' => '发送成功，对方处理中'];
         }
         $data['message_type'] = 'add_friend';
         $data['main_code'] = Context::get('code');
+        output($data);
         $id = enter($data);
         if ($id) {
             ContactsAddRecord::create([
@@ -90,13 +90,14 @@ class ContactsService
         $data = [];
         if (!$record->isEmpty()) {
             foreach ($record as $item) {
-                $members = Member::find($item->send_code);
+                $members = Member::findFromCache($item->main_code);
                 $data = [
                     [
                         'record_id' => $item->record_id,
                         'send_code' => $item->main_code,
-                        'send_head_image' => picturePath($members->head_image),
-                        'send_nickname' => $members->nickname,
+                        'head_image' => picturePath($members->head_image),
+                        'nickname' => $members->nickname,
+                        'username' => $members->username,
                         'accept_code' => $item->accept_code,
                         'remarks' => $item->remarks,
                         'status' => $item->status,
@@ -180,7 +181,7 @@ class ContactsService
                         'username' => $members->username,
                         'nickname' => $members->nickname,
                         'email' => $members->email,
-                        'showName' => !empty($item->remarks) ? $item->remarks : $members->nickname,
+                        'showName' => !empty($item->remarks) ? $item->remarks : $members->username,
                         'code' => $members->code,
                         'config' => [
                             'remarks' => $item->remarks,

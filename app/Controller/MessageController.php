@@ -59,7 +59,7 @@ class MessageController extends AbstractController
     {
         $validator = $this->validationFactory->make($this->request->all(), [
             'acceptCode' => 'required',//接受方ID
-            'sessionType' => 'required',//接收消息的类型
+            'acceptType' => 'required',//接收消息的类型
             'page' => 'required|numeric',//当前页
             'perPage' => 'required|numeric',//每页条数
         ]);

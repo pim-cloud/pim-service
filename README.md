@@ -1,18 +1,5 @@
 [comment]: <> ([English]&#40;./README.md&#41; | 中文)
-
 <p align="center"><a href="https://jksusu.cn" target="_blank" rel="noopener noreferrer"><img width="75" height="70" src="http://cdn.jksusu.cn/logo.jpg"></a></p>
-
-[comment]: <> (<p align="center">)
-
-[comment]: <> (  <a href="https://github.com/pim-cloud/pim-web/releases"><img src="https://poser.pugx.org/pim-cloud/pim-web/v/stable"></a>)
-
-[comment]: <> (  <a href="https://www.php.net"><img src="https://img.shields.io/badge/php-%3E=7.4-brightgreen.svg?maxAge=2592000"></a>)
-
-[comment]: <> (  <a href="https://github.com/swoole/swoole-src"><img src="https://img.shields.io/badge/swoole-%3E=4.5-brightgreen.svg?maxAge=2592000"></a>)
-
-[comment]: <> (  <a href="https://github.com/pim-cloud/pim-web/blob/main/LICENSE"><img src=""></a>)
-
-[comment]: <> (</p>)
 
 # pim-service
 
@@ -22,37 +9,82 @@
 
 ## 快速开始
 
-### 运行完整的pim系统
+[comment]: <> (### 运行完整的pim系统)
 
-```bash
-docker-compose 方式运行
-1. docker-compose  -v         检查环境
-2. docker-compose  up         启动系统
-3. 创建数据库im导入 pim.sql文件  访问80端口
-```
-```bash
-下载源代码运行
-1. git clone https://github.com/pim-cloud/pim-service.git 下载后端代码
-2. composer install                                       安装依赖
-3. php bin/hyperf.php start                               启动后端服务(需要自己配置mysql,redis)
-4. https://github.com/pim-cloud/pim-web.git               下载前端代码
-5. npm install                                            安装依赖
-6. npm run serve                                          启动（需要配置后端http，websocket地址）
-```
-### 下载最新的 pim-service 后端代码
+[comment]: <> (```bash)
 
-```bash
-git clone https://github.com/pim-cloud/pim-service.git
+[comment]: <> (docker-compose 方式运行)
+
+[comment]: <> (1. docker-compose  -v         检查环境)
+
+[comment]: <> (2. docker-compose  up         启动系统)
+
+[comment]: <> (3. 创建数据库im导入 pim.sql文件  访问80端口)
+
+[comment]: <> (```)
+
+[comment]: <> (```bash)
+
+[comment]: <> (下载源代码运行)
+
+[comment]: <> (1. git clone https://github.com/pim-cloud/pim-service.git 下载后端代码)
+
+[comment]: <> (2. composer install                                       安装依赖)
+
+[comment]: <> (3. php bin/hyperf.php start                               启动后端服务&#40;需要自己配置mysql,redis&#41;)
+
+[comment]: <> (4. https://github.com/pim-cloud/pim-web.git               下载前端代码)
+
+[comment]: <> (5. npm install                                            安装依赖)
+
+[comment]: <> (6. npm run serve                                          启动（需要配置后端http，websocket地址）)
+
+[comment]: <> (```)
+
+[comment]: <> (### 下载最新的 pim-service 后端代码)
+
+[comment]: <> (```bash)
+
+[comment]: <> (git clone https://github.com/pim-cloud/pim-service.git)
+
+[comment]: <> (```)
+
+[comment]: <> (### 镜像维护地址)
+
+[comment]: <> (```)
+
+[comment]: <> (docker pull jksusu/pim-service  后端镜像下载  )
+
+[comment]: <> (docker pull jksusu/pim-web      前端镜像下载 )
+
+[comment]: <> (docker pull mysql:5.7.29        mysql镜像下载)
+
+[comment]: <> (docker pull redis:6.0.6         redis镜像下载)
+
+[comment]: <> (```)
+### 项目说明
+> 此项目目前仅供学习使用，web 和 php后端实现异常简陋，作者写这个项目仅仅是为了学习一下vue 以及目前前端工具。
+### 技术实现
+> php mysql redis vue3*
+
+### 本地运行
+```md
+* 配置php node vite环境
+* 运行php后端,参考hyperf教程
+* node run dev 运行vue
 ```
 
-### 镜像维护地址
+### 后续计划
+> 重新设计后端，实现分布式部署。坚持使用php+redis来构建一个可靠，适用于中小公司的im服务。
+> 服务器已买3年，至少会在这三年内一直更新，维护，也欢迎有兴趣的小伙伴一起来。
 
-```
-docker pull jksusu/pim-service  后端镜像下载  
-docker pull jksusu/pim-web      前端镜像下载 
-docker pull mysql:5.7.29        mysql镜像下载
-docker pull redis:6.0.6         redis镜像下载
-```
+### 项目部分内容
+![](./docs/images/login.jpg)
+![](./docs/images/reg.jpg)
+![](./docs/images/friend_detail.jpg)
+![](./docs/images/new_friends.jpg)
+![](./docs/images/session_list.jpg)
+![](./docs/images/upload_head.jpg)
 
 ### 开源协议
 
